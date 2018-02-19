@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/titleBackground"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginBottom="5dp"
+            android:textSize="30sp"
+            android:text="@string/your_boards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageButton
+            android:id="@+id/btRefresh"
+            android:layout_weight="4"
+            android:background="@drawable/button_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/refresh"/>
+
+        <ImageButton
+            android:id="@+id/btAddBoard"
+            android:layout_weight="4"
+            android:background="@drawable/button_background"
+            android:layout_marginLeft="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/add"/>
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lvBoards"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/listHeader"
+        android:orientation="horizontal"
+        android:background="@color/titleBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvBoardName"
+            android:layout_weight="2"
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:textSize="30sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"/>
+
+        <ImageButton
+            android:id="@+id/btRefreshLists"
+            android:layout_weight="8"
+            android:background="@drawable/button_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/refresh"/>
+
+    </LinearLayout>
+
+    <ExpandableListView
+        android:id="@+id/expList"
+        android:groupIndicator="@null"
+        android:listSelector="@color/selected"
+        android:layout_marginBottom="50dp"
+        android:layout_below="@+id/listHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </ExpandableListView>
+
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:layout_weight="1"
+            android:id="@+id/btAddUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center"
+            android:src="@drawable/add_user" />
+
+        <ImageButton
+            android:layout_weight="1"
+            android:id="@+id/btAddList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center"
+            android:src="@drawable/add_list" />
+    </LinearLayout>
+
+</RelativeLayout>
