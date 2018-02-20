@@ -316,15 +316,19 @@ public class CardsListActivity extends BaseActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (response.trim().equals("1")) {
-                            Toast.makeText(CardsListActivity.this, getString(R.string.add_success), Toast.LENGTH_SHORT).show();
-                        } else if (response.trim().equals("99")) {
+                        if (response.trim().equals("99")) {
                             Toast.makeText(CardsListActivity.this, getString(R.string.not_found_email) + " " + email, Toast.LENGTH_SHORT).show();
                         } else if (response.trim().equals("100")) {
                             Toast.makeText(CardsListActivity.this, getString(R.string.member_existed), Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(CardsListActivity.this, getString(R.string.errorPOST), Toast.LENGTH_SHORT).show();
-                            Log.e("ERROR", response);
+                            String[] parts = response.trim().split("-");
+                            if(parts[0].equals("user")) {
+                                addBoardMemberLocal(id,Integer.parseInt(parts[1]),parts[2],parts[3]);
+                                Toast.makeText(CardsListActivity.this, getString(R.string.add_success), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(CardsListActivity.this, getString(R.string.errorPOST), Toast.LENGTH_SHORT).show();
+                                Log.e("ERROR", response);
+                            }
                         }
                     }
                 },

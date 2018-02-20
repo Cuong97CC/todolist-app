@@ -60,6 +60,7 @@
     <string name="not_found_email">Not found user with email</string>
     <string name="member_existed">This user has already in this board</string>
     <string name="assign">Assign to...</string>
+    <string name="assigned">Assigned to:</string>
     <string name="detail">Detail:</string>
     <string name="choose_location">Choose location</string>
     <string name="google_api">AIzaSyC5BvEGTkCP7vIfQF8Olkg_OV_7obw_Coo</string>

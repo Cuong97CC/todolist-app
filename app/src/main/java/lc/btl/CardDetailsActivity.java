@@ -9,8 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +19,7 @@ import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -47,6 +46,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -65,8 +65,9 @@ public class CardDetailsActivity extends BaseActivity {
     private Card currentCard;
     private String listName, boardName, boardId;
     int PLACE_PICKER_REQUEST = 1;
-    TextView tvCardName, tvCardPosition, tvDescription, tvTime, tvLocation;
+    TextView tvCardName, tvCardPosition, tvDescription, tvTime, tvLocation, tvAssign;
     ImageButton btRefreshCard, btCardOption, btDirection;
+    ListView lvCardMember;
     EditText savedEditText;
     TextView savedTvLat, savedTvLng;
     Switch swNotification;
@@ -74,6 +75,8 @@ public class CardDetailsActivity extends BaseActivity {
     AlarmManager alarmManager;
     Intent intentReciever;
     SharedPreferences sharedPreferences;
+    ArrayList<User> arrayUser;
+    AssignAdapter assignAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +101,13 @@ public class CardDetailsActivity extends BaseActivity {
 
         sync();
 
-        showCardDetailsLocal();
-
         tvCardName.setText(currentCard.getName());
         tvCardPosition.setText(getString(R.string.list) + " " + listName + " ~ " + getString(R.string.board) + " " + boardName);
+        arrayUser = new ArrayList<>();
+        assignAdapter = new AssignAdapter(this, R.layout.item_member_card, arrayUser);
+        lvCardMember.setAdapter(assignAdapter);
+
+        showCardDetailsLocal();
 
         btRefreshCard.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,6 +161,8 @@ public class CardDetailsActivity extends BaseActivity {
         swNotification = (Switch) findViewById(R.id.swNotification);
         btDirection = (ImageButton) findViewById(R.id.btDirection);
         tvLocation = (TextView) findViewById(R.id.tvLocation);
+        lvCardMember = (ListView) findViewById(R.id.lvCardMembers);
+        tvAssign = (TextView) findViewById(R.id.tvAssign);
     }
 
     private void getCardDetails(String url) {
@@ -219,6 +227,14 @@ public class CardDetailsActivity extends BaseActivity {
                 refresh();
             }
         }
+        Cursor cursor1 = getCardMemberLocal(Integer.parseInt(currentId));
+        while (cursor1.moveToNext()) {
+            arrayUser.add(new User(cursor1.getInt(1),cursor1.getString(2),cursor1.getString(3)));
+        }
+        if(arrayUser.size() > 0) {
+            tvAssign.setVisibility(View.GONE);
+        }
+        assignAdapter.notifyDataSetChanged();
     }
 
     public void refresh() {
@@ -268,6 +284,7 @@ public class CardDetailsActivity extends BaseActivity {
                         setLocationDialog(card);
                         break;
                     case R.id.menuAssign:
+                        chooseMemberDialog(card, Integer.parseInt(boardId));
                         break;
                     case R.id.menuDeleteCard:
                         deleteCardDialog(card);
@@ -469,6 +486,42 @@ public class CardDetailsActivity extends BaseActivity {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public void chooseMemberDialog(Card card, int boardId) {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_add_member_card);
+
+        ListView lvBoardMembers = (ListView) dialog.findViewById(R.id.lvBoardMembers);
+        Button btAssignOk = (Button) dialog.findViewById(R.id.btAssignOk);
+        Button btAssignCancel = (Button) dialog.findViewById(R.id.btAssignCancel);
+
+        ArrayList<User> arrayUser = new ArrayList<>();
+        Cursor cursor = getBoardMemberLocal(boardId);
+        while (cursor.moveToNext()) {
+            arrayUser.add(new User(cursor.getInt(1),cursor.getString(2),cursor.getString(3)));
+        }
+        MemberAdapter memberAdapter = new MemberAdapter(CardDetailsActivity.this, R.layout.item_member_board, arrayUser);
+        lvBoardMembers.setAdapter(memberAdapter);
+        memberAdapter.notifyDataSetChanged();
+
+        btAssignCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        btAssignOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        setDialogWidth(dialog, 0.9f);
+
+        dialog.show();
     }
 
     public void deleteCardDialog(final Card card) {

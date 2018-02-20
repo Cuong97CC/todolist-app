@@ -41,7 +41,6 @@ public class BaseActivity extends AppCompatActivity {
 
     public String baseURL = "https://todolistv1.000webhostapp.com";
     public String getAllDataURL = baseURL + "/getAllData.php?email=";
-//    public String syncDataURL = baseURL + "/syncData.php";
     private GoogleSignInClient mGoogleSignInClient;
     LocalDatabse database;
     Dialog dialogInstance;
@@ -64,8 +63,8 @@ public class BaseActivity extends AppCompatActivity {
         database.queryData("CREATE TABLE IF NOT EXISTS boards( id INTEGER PRIMARY KEY, name VARCHAR(255), is_owner INTEGER)");
         database.queryData("CREATE TABLE IF NOT EXISTS cardslist( id INTEGER PRIMARY KEY, name VARCHAR(255), idBoard INTEGER)");
         database.queryData("CREATE TABLE IF NOT EXISTS card( id INTEGER PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), date VARCHAR(255), time VARCHAR(255), location VARCHAR(255), lat VARCHAR(255), lng VARCHAR(255), idList INTEGER)");
-//        database.queryData("CREATE TABLE IF NOT EXISTS local_actions( id INTEGER PRIMARY KEY AUTOINCREMENT, target VARCHAR(255), targetId INTEGER, boardId INTEGER, listId INTEGER, type VARCHAR(255), name VARCHAR(255), description VARCHAR(255), date VARCHAR(255), time VARCHAR(255), location VARCHAR(255), lat VARCHAR(255), lng VARCHAR(255))");
-//        database.queryData("CREATE TABLE IF NOT EXISTS unsynced_items(type VARCHAR(255), id INTEGER)");
+        database.queryData("CREATE TABLE IF NOT EXISTS board_users( idBoard INTEGER , idUser INTEGER, name VARCHAR(255), email VARCHAR(255))");
+        database.queryData("CREATE TABLE IF NOT EXISTS card_users( idCard INTEGER , idUser INTEGER, name VARCHAR(255), email VARCHAR(255))");
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
@@ -194,10 +193,6 @@ public class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    /*private void syncData(String url, String target, int targetId, int boardId, int listId, String type, String name, String description, String date, String time, String location, String lat, String lng) {
-
-    }*/
-
     public void logOutDialog() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setMessage(getString(R.string.confirm_logout));
@@ -304,7 +299,6 @@ public class BaseActivity extends AppCompatActivity {
 
     public void deleteBoardLocal(int id) {
         database.queryData("DELETE FROM boards WHERE id = " + id);
-//        database.queryData("DELETE FROM unsynced_items WHERE type = 'board' AND id = " + id);
         Cursor cursor = getListsLocal(id);
         while(cursor.moveToNext()) {
             deleteListLocal(cursor.getInt(0));
@@ -314,7 +308,6 @@ public class BaseActivity extends AppCompatActivity {
 
     public void deleteListLocal(int id) {
         database.queryData("DELETE FROM cardslist WHERE id = " + id);
-//        database.queryData("DELETE FROM unsynced_items WHERE type = 'list' AND id = " + id);
         Cursor cursor = getCardsLocal(id);
         while(cursor.moveToNext()) {
             deleteCardLocal(cursor.getInt(0));
@@ -324,7 +317,6 @@ public class BaseActivity extends AppCompatActivity {
 
     public void deleteCardLocal(int id) {
         database.queryData("DELETE FROM card WHERE id = " + id);
-//        database.queryData("DELETE FROM unsynced_items WHERE type = 'card' AND id = " + id);
         Log.e("DATABASE", "delete card " + id);
     }
 
@@ -346,73 +338,33 @@ public class BaseActivity extends AppCompatActivity {
         Log.e("DATABASE", "add card " + name  + "-" + id);
     }
 
-    /*public void saveLocalAction(String target, int targetId, int boardId, int listId, String type, String name, String description, String date, String time, String location, String lat, String lng) {
-        name = name.replace("'","''");
-        description = description.replace("'","''");
-        date = date.replace("'","''");
-        time = time.replace("'","''");
-        location = location.replace("'","''");
-        lat = lat.replace("'","''");
-        lng = lng.replace("'","''");
-        database.queryData("INSERT INTO local_actions VALUES(null,'" + target + "'," + targetId + "," + boardId + "," + listId + ",'" + type + "','" + name + "','" + description + "','" + date + "','" + time + "','" + location + "','" + lat + "','" + lng + "')");
-        Log.e("DATABASE", "local action " + target  + "-" + targetId + "-" + type);
-    }*/
-
-    /*public void editLocalAction(int id, String target, int targetId, String type, String name, String description, String date, String time, String location, String lat, String lng) {
-        name = name.replace("'","''");
-        description = description.replace("'","''");
-        date = date.replace("'","''");
-        time = time.replace("'","''");
-        location = location.replace("'","''");
-        lat = lat.replace("'","''");
-        lng = lng.replace("'","''");
-    }*/
-
-    /*public void insertBoardLocalUnsync(String name) {
-        Cursor cursor = database.getData("SELECT MIN(id) AS id FROM boards");
-        int id;
-        if(cursor.moveToFirst()) {
-            id = Math.min(cursor.getInt(0) - 1, -1);
-        } else {
-            id = -1;
+    public void addBoardMemberLocal(int idBoard, int idUser, String name, String email) {
+        if(!database.getData("SELECT * FROM board_users WHERE idBoard = " + idBoard + " AND idUser = " + idUser).moveToFirst()) {
+            database.queryData("INSERT INTO board_users VALUES (" + idBoard + "," + idUser + ",'" + name + "','" + email + "')");
+            Log.e("DATABASE", "add member " + name + "-" + idBoard);
         }
-        insertBoardLocal(id, name, 1);
-        database.queryData("INSERT INTO unsynced_items VALUES('board'," + id + ")");
-    }*/
+    }
 
-    /*public void editBoardLocalUnsync(int id, String name) {
-        saveLocalAction("board", id, 0, 0, "edit", name, "", "", "", "", "", "");
-        Cursor cursor = database.getData("SELECT * FROM unsynced_items WHERE type = 'board' AND id = " + id);
-        if(!cursor.moveToFirst()) {
-            database.queryData("INSERT INTO unsynced_items VALUES('board'," + id + ")");
+    public void assignCardLocal(int idCard, int idUser, String name, String email) {
+        if(!database.getData("SELECT * FROM card_users WHERE idCard = " + idCard + " AND idUser = " + idUser).moveToFirst()) {
+            database.queryData("INSERT INTO card_users VALUES (" + idCard + "," + idUser + ",'" + name + "','" + email + "')");
+            Log.e("DATABASE", "assign " + name + "-" + idCard);
         }
-        editBoardLocal(id, name);
-    }*/
+    }
 
-    /*public void deleteBoardLocalUnsync(int id) {
-        deleteBoardLocal(id);
-        database.queryData("DELETE FROM local_actions WHERE target = 'board' AND targetId = " + id);
-        database.queryData("DELETE FROM local_actions WHERE boardId = " + id);
-        saveLocalAction("board", id, 0, 0, "delete", sp.getString("email", ""), "", "", "", "", "", "");
-    }*/
+    public Cursor getBoardMemberLocal(int idBoard) {
+        return database.getData("SELECT * FROM board_users WHERE idBoard = " + idBoard);
+    }
+
+    public Cursor getCardMemberLocal(int idCard) {
+        return database.getData("SELECT * FROM card_users WHERE idCard = " + idCard);
+    }
 
     public void clearLocalData() {
         database.queryData("DELETE FROM boards");
         database.queryData("DELETE FROM cardslist");
         database.queryData("DELETE FROM card");
+        database.queryData("DELETE FROM board_users");
+        database.queryData("DELETE FROM card_users");
     }
-
-    /*public void clearSyncedData() {
-        database.queryData("DELETE FROM boards WHERE id > 0");
-        database.queryData("DELETE FROM cardslist WHERE id > 0");
-        database.queryData("DELETE FROM card WHERE id > 0");
-    }*/
-
-    /*public boolean checkUnsync(String type, int id) {
-        Cursor cursor = database.getData("SELECT * FROM unsynced_items WHERE type = '" + type + "' AND id = " + id);
-        if(cursor.moveToFirst()) {
-            return true;
-        }
-        return false;
-    }*/
 }

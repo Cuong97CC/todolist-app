@@ -10,6 +10,7 @@
     <color name="bgfocused">#dedede</color>
     <color name="selected">#c6f2ff</color>
     <color name="sectionBackground">#c6f2ff</color>
+    <color name="itemBackground">#d9f6ff</color>
     <color name="infoBackground">#c6f2ff</color>
     <color name="unsync">#bebebe</color>
 </resources>

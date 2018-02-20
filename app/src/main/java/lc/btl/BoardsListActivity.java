@@ -191,7 +191,17 @@ public class BoardsListActivity extends BaseActivity {
                                     for(int k = 0; k < cards.length(); k++) {
                                         JSONObject obj2 = cards.getJSONObject(k);
                                         insertCardLocal(obj2.getInt("id"), obj2.getString("name"), obj2.getString("description"), obj2.getString("date"), obj2.getString("time"), obj2.getString("location"), obj2.getString("lat"), obj2.getString("lng"), obj2.getInt("idList"));
+                                        JSONArray users = obj2.getJSONArray("users");
+                                        for(int l = 0; l < users.length(); l++) {
+                                            JSONObject obj3 = users.getJSONObject(l);
+                                            assignCardLocal(obj2.getInt("id"),obj3.getInt("id"),obj3.getString("name"),obj3.getString("email"));
+                                        }
                                     }
+                                }
+                                JSONArray members = obj.getJSONArray("users");
+                                for(int j = 0; j < members.length(); j++) {
+                                    JSONObject obj1 = members.getJSONObject(j);
+                                    addBoardMemberLocal(obj.getInt("id"), obj1.getInt("id"), obj1.getString("name"), obj1.getString("email"));
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
