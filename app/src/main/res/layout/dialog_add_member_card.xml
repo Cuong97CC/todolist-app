@@ -10,6 +10,15 @@
         android:textSize="25sp"
         android:text="@string/assign"/>
 
+    <TextView
+        android:id="@+id/tvNoOne"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="italic"
+        android:text="@string/no_one"/>
+
     <ListView
         android:id="@+id/lvBoardMembers"
         android:layout_width="match_parent"

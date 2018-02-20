@@ -360,6 +360,14 @@ public class BaseActivity extends AppCompatActivity {
         return database.getData("SELECT * FROM card_users WHERE idCard = " + idCard);
     }
 
+    public Cursor getMemberInfo(int idBoard, int idUser) {
+        return database.getData("SELECT * FROM board_users WHERE idBoard = " + idBoard + " AND idUser = " + idUser);
+    }
+
+    public boolean isAssigned(int idCard, int idUser) {
+        return database.getData("SELECT * FROM card_users WHERE idCard = " + idCard + " AND idUser = " + idUser).moveToFirst();
+    }
+
     public void clearLocalData() {
         database.queryData("DELETE FROM boards");
         database.queryData("DELETE FROM cardslist");

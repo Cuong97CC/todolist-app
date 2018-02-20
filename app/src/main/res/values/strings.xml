@@ -78,4 +78,7 @@
     <string name="please_refresh">Log in failed! Please refresh</string>
     <string name="confirm_logout">Are you sure want to LOG OUT? Your unsaved data will be lost!</string>
     <string name="sync">Sync</string>
+    <string name="no_one">No one left :))</string>
+    <string name="choose_no_one">No one chosen</string>
+    <string name="assign_success">Assign successfully!</string>
 </resources>

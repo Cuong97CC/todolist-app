@@ -1,12 +1,15 @@
 package lc.btl;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -45,11 +48,12 @@ public class MemberAdapter extends BaseAdapter {
     private class ViewHolder {
         TextView tvName, tvEmail;
         CheckBox cbAssign;
+        LinearLayout loMemberBoard;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        MemberAdapter.ViewHolder viewHolder;
+        final MemberAdapter.ViewHolder viewHolder;
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -58,6 +62,7 @@ public class MemberAdapter extends BaseAdapter {
             viewHolder.tvName = (TextView) convertView.findViewById(R.id.tvName);
             viewHolder.tvEmail = (TextView) convertView.findViewById(R.id.tvEmail);
             viewHolder.cbAssign = (CheckBox) convertView.findViewById(R.id.cbAssign);
+            viewHolder.loMemberBoard = (LinearLayout) convertView.findViewById(R.id.loMemberBoard);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (MemberAdapter.ViewHolder) convertView.getTag();
@@ -67,6 +72,25 @@ public class MemberAdapter extends BaseAdapter {
 
         viewHolder.tvName.setText(user.getName());
         viewHolder.tvEmail.setText(user.getEmail());
+        viewHolder.cbAssign.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    context.checkedUser.add(String.valueOf(user.getId()));
+                    viewHolder.loMemberBoard.setBackgroundColor(Color.parseColor("#c6f2ff"));
+                } else {
+                    context.checkedUser.remove(String.valueOf(user.getId()));
+                    viewHolder.loMemberBoard.setBackgroundColor(Color.parseColor("#ffffff"));
+                }
+            }
+        });
+
+        viewHolder.loMemberBoard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewHolder.cbAssign.performClick();
+            }
+        });
 
         return convertView;
     }

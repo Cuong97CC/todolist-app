@@ -56,6 +56,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     private String getCardDetailsURL = baseURL + "/getCardDetails.php?idCard=";
     private String editCardURL = baseURL + "/editCard.php";
+    private String assignURL = baseURL + "/assign.php";
     private String deleteCardURL = baseURL + "/deleteCard.php";
     private String setTimeURL = baseURL + "/setTime.php";
     private String setLocationURL = baseURL + "/setLocation.php";
@@ -75,6 +76,7 @@ public class CardDetailsActivity extends BaseActivity {
     AlarmManager alarmManager;
     Intent intentReciever;
     SharedPreferences sharedPreferences;
+    ArrayList<String> checkedUser;
     ArrayList<User> arrayUser;
     AssignAdapter assignAdapter;
 
@@ -104,6 +106,7 @@ public class CardDetailsActivity extends BaseActivity {
         tvCardName.setText(currentCard.getName());
         tvCardPosition.setText(getString(R.string.list) + " " + listName + " ~ " + getString(R.string.board) + " " + boardName);
         arrayUser = new ArrayList<>();
+        checkedUser = new ArrayList<>();
         assignAdapter = new AssignAdapter(this, R.layout.item_member_card, arrayUser);
         lvCardMember.setAdapter(assignAdapter);
 
@@ -228,6 +231,7 @@ public class CardDetailsActivity extends BaseActivity {
             }
         }
         Cursor cursor1 = getCardMemberLocal(Integer.parseInt(currentId));
+        arrayUser.clear();
         while (cursor1.moveToNext()) {
             arrayUser.add(new User(cursor1.getInt(1),cursor1.getString(2),cursor1.getString(3)));
         }
@@ -495,11 +499,17 @@ public class CardDetailsActivity extends BaseActivity {
         ListView lvBoardMembers = (ListView) dialog.findViewById(R.id.lvBoardMembers);
         Button btAssignOk = (Button) dialog.findViewById(R.id.btAssignOk);
         Button btAssignCancel = (Button) dialog.findViewById(R.id.btAssignCancel);
+        TextView tvNoOne = (TextView) dialog.findViewById(R.id.tvNoOne);
 
         ArrayList<User> arrayUser = new ArrayList<>();
         Cursor cursor = getBoardMemberLocal(boardId);
         while (cursor.moveToNext()) {
-            arrayUser.add(new User(cursor.getInt(1),cursor.getString(2),cursor.getString(3)));
+            if(!isAssigned(card.getId(), cursor.getInt(1))) {
+                arrayUser.add(new User(cursor.getInt(1), cursor.getString(2), cursor.getString(3)));
+            }
+        }
+        if(arrayUser.size() > 0) {
+            tvNoOne.setVisibility(View.GONE);
         }
         MemberAdapter memberAdapter = new MemberAdapter(CardDetailsActivity.this, R.layout.item_member_board, arrayUser);
         lvBoardMembers.setAdapter(memberAdapter);
@@ -515,6 +525,7 @@ public class CardDetailsActivity extends BaseActivity {
         btAssignOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                assign(assignURL);
                 dialog.dismiss();
             }
         });
@@ -577,6 +588,54 @@ public class CardDetailsActivity extends BaseActivity {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    private void assign(String url) {
+        if(checkedUser.size() == 0) {
+        } else {
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (response.trim().equals("1")) {
+                                for (int i = 0; i < checkedUser.size(); i++) {
+                                    Cursor cursor = getMemberInfo(Integer.parseInt(boardId), Integer.parseInt(checkedUser.get(i)));
+                                    if(cursor.moveToFirst()) {
+                                        assignCardLocal(currentCard.getId(), cursor.getInt(1), cursor.getString(2), cursor.getString(3));
+                                    }
+                                }
+                                showCardDetailsLocal();
+                                checkedUser.clear();
+                                Toast.makeText(CardDetailsActivity.this, getString(R.string.assign_success), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(CardDetailsActivity.this, getString(R.string.errorPOST), Toast.LENGTH_SHORT).show();
+                                Log.e("ERROR", response);
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(CardDetailsActivity.this, getString(R.string.errorServe), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            ){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("idCard", String.valueOf(currentCard.getId()));
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < checkedUser.size(); i++) {
+                        sb.append(checkedUser.get(i)).append(",");
+                    }
+                    Log.e("ids", sb.toString());
+                    params.put("idUsers", sb.toString());
+                    return params;
+                }
+            };
+            requestQueue.add(stringRequest);
+        }
     }
 
     private void setTimeDialog(final Card card) {

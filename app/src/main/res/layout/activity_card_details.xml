@@ -2,7 +2,7 @@
 <LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <LinearLayout
@@ -159,7 +159,10 @@
 
     <LinearLayout
         android:background="@color/sectionBackground"
-        android:layout_margin="5dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:padding="10dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -177,12 +180,12 @@
             android:layout_height="wrap_content"
             android:textStyle="italic"
             android:textSize="15sp"
-            android:text="@string/not_set"/>
+            android:text="@string/choose_no_one"/>
 
         <ListView
             android:id="@+id/lvCardMembers"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"></ListView>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
