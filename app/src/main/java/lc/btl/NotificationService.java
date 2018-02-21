@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 
 /**
@@ -33,7 +32,7 @@ public class NotificationService extends Service {
         String email = sp.getString("email","");
         if(!email.trim().equals("")) {
             String status = intent.getExtras().getString("status");
-            if (status.equals("on")) {
+            if (status != null && status.equals("on")) {
                 String userEmail = intent.getExtras().getString("userEmail");
                 if(userEmail != null && userEmail.equals(email)) {
                     String cardName = intent.getExtras().getString("cardName");
@@ -41,6 +40,7 @@ public class NotificationService extends Service {
                     String boardId = intent.getExtras().getString("boardId");
                     String boardName = intent.getExtras().getString("boardName");
                     String listName = intent.getExtras().getString("listName");
+                    int is_owner = intent.getExtras().getInt("is_owner");
 
                     SoundControl.getInstance(context).playMusic();
 
@@ -52,6 +52,7 @@ public class NotificationService extends Service {
                     extras.putString("boardId", boardId);
                     extras.putString("boardName", boardName);
                     extras.putString("listName", listName);
+                    extras.putInt("is_owner", is_owner);
                     extras.putString("status", "off");
                     intent_card_detail.putExtras(extras);
 
@@ -67,7 +68,7 @@ public class NotificationService extends Service {
 
                     notificationManager.notify(Integer.valueOf(cardId), notification);
                 }
-            } else if (status.equals("off")) {
+            } else if (status != null && status.equals("off")) {
                 SoundControl.getInstance(context).stopMusic();
             }
         }

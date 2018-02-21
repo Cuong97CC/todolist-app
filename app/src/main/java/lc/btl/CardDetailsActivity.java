@@ -50,11 +50,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class CardDetailsActivity extends BaseActivity {
 
-    private String getCardDetailsURL = baseURL + "/getCardDetails.php?idCard=";
     private String editCardURL = baseURL + "/editCard.php";
     private String assignURL = baseURL + "/assign.php";
     private String deleteCardURL = baseURL + "/deleteCard.php";
@@ -93,7 +93,6 @@ public class CardDetailsActivity extends BaseActivity {
         is_owner = intent.getExtras().getInt("is_owner");
         soundStatus = intent.getExtras().getString("status");
         currentCard = new Card();
-        getCardDetailsURL += currentId;
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         intentReciever = new Intent(CardDetailsActivity.this, AlarmReciever.class);
         if(soundStatus != null && soundStatus.equals("off")) {
@@ -166,52 +165,6 @@ public class CardDetailsActivity extends BaseActivity {
         tvLocation = (TextView) findViewById(R.id.tvLocation);
         lvCardMember = (ListView) findViewById(R.id.lvCardMembers);
         tvAssign = (TextView) findViewById(R.id.tvAssign);
-    }
-
-    private void getCardDetails(String url) {
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        try {
-                            JSONObject obj = response.getJSONObject(0);
-                            currentCard.setId(obj.getInt("id"));
-                            currentCard.setName(obj.getString("name"));
-                            currentCard.setDescription(obj.getString("description"));
-                            currentCard.setDate(obj.getString("date"));
-                            currentCard.setTime(obj.getString("time"));
-                            currentCard.setLocation(obj.getString("location"));
-                            currentCard.setLat(obj.getString("lat"));
-                            currentCard.setLng(obj.getString("lng"));
-                            refresh();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Cursor cursor = getCardDetailsLocal(Integer.parseInt(currentId));
-                        if(cursor != null)
-                        {
-                            if (cursor.moveToFirst()) {
-                                currentCard.setId(cursor.getInt(0));
-                                currentCard.setName(cursor.getString(1));
-                                currentCard.setDescription(cursor.getString(2));
-                                currentCard.setDate(cursor.getString(3));
-                                currentCard.setTime(cursor.getString(4));
-                                currentCard.setLocation(cursor.getString(5));
-                                currentCard.setLat(cursor.getString(6));
-                                currentCard.setLng(cursor.getString(7));
-                                refresh();
-                            }
-                        }
-                    }
-                }
-        );
-        requestQueue.add(jsonArrayRequest);
     }
 
     public void showCardDetailsLocal() {
@@ -591,8 +544,7 @@ public class CardDetailsActivity extends BaseActivity {
     }
 
     private void assign(String url) {
-        if(checkedUser.size() == 0) {
-        } else {
+        if(checkedUser.size() != 0) {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
@@ -707,7 +659,7 @@ public class CardDetailsActivity extends BaseActivity {
         int month = calendar.get(Calendar.MONTH);
         int year = calendar.get(Calendar.YEAR);
         if(!card.getDate().equals("")) {
-            DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
             try {
                 Date date = df.parse(card.getDate());
                 calendar.setTime(date);
@@ -722,7 +674,7 @@ public class CardDetailsActivity extends BaseActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 calendar.set(year, month, dayOfMonth);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
                 edt.setText(simpleDateFormat.format(calendar.getTime()));
             }
         }, year, month, day);
@@ -734,7 +686,7 @@ public class CardDetailsActivity extends BaseActivity {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         if(!card.getTime().equals("")) {
-            DateFormat df = new SimpleDateFormat("HH:mm");
+            DateFormat df = new SimpleDateFormat("HH:mm", Locale.US);
             try {
                 Date date = df.parse(card.getTime());
                 calendar.setTime(date);
@@ -748,7 +700,7 @@ public class CardDetailsActivity extends BaseActivity {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 calendar.set(0,0,0,hourOfDay,minute);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm", Locale.US);
                 edt.setText(simpleDateFormat.format(calendar.getTime()));
             }
         }, hour, minute, true);
@@ -792,7 +744,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     private void setAlarm() {
         Calendar calendar = Calendar.getInstance();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
         if(!expired()) {
             try {
                 Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
@@ -808,6 +760,7 @@ public class CardDetailsActivity extends BaseActivity {
             extras.putString("boardId", String.valueOf(boardId));
             extras.putString("boardName", boardName);
             extras.putString("listName", listName);
+            extras.putInt("is_owner", is_owner);
             extras.putString("status", "on");
             intentReciever.putExtras(extras);
             pendingIntent = PendingIntent.getBroadcast(
@@ -824,7 +777,7 @@ public class CardDetailsActivity extends BaseActivity {
                 }
                 sb.append(String.valueOf(currentCard.getId())).append(",");
                 editor.putString("ids", sb.toString());
-                editor.commit();
+                editor.apply();
             }
         } else {
             swNotification.setChecked(false);
@@ -845,7 +798,7 @@ public class CardDetailsActivity extends BaseActivity {
                 }
             }
             editor.putString("ids", sb.toString());
-            editor.commit();
+            editor.apply();
             pendingIntent = PendingIntent.getBroadcast(
                     CardDetailsActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_CANCEL_CURRENT
             );
@@ -881,7 +834,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     private boolean expired() {
         Date now = new Date();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
         try {
             Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
             if(now.after(date)) {
