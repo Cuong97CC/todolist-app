@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
 import java.util.List;
 
 /**
@@ -66,26 +68,16 @@ public class BoardAdapter extends BaseAdapter {
 
         final Board board = boardList.get(position);
 
-        if(board.getIs_owner() == 0) {
-            viewHolder.btEditBoard.setEnabled(false);
-            viewHolder.btEditBoard.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-        } else {
-            viewHolder.btEditBoard.setEnabled(true);
-            viewHolder.btEditBoard.setColorFilter(null);
-        }
-
-        /*if (board.isUnsynced()) {
-            viewHolder.btBoardName.setTextColor(Color.parseColor("#bebebe"));
-        } else {
-            viewHolder.btBoardName.setTextColor(Color.parseColor("#000000"));
-        }*/
-
         viewHolder.btBoardName.setText(board.getName());
 
         viewHolder.btEditBoard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                context.editBoardDialog(board);
+                if(board.getIs_owner() == 0) {
+                    Toast.makeText(context, R.string.not_owner, Toast.LENGTH_LONG).show();
+                } else {
+                    context.editBoardDialog(board);
+                }
             }
         });
 

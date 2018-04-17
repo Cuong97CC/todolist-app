@@ -38,7 +38,6 @@ import java.util.Map;
 
 public class CardsListActivity extends BaseActivity {
 
-    private String getListsURL = baseURL + "/getLists.php?idBoard=";
     private String addListURL = baseURL + "/insertList.php";
     private String deleteListURL = baseURL + "/deleteList.php";
     private String editListURL = baseURL + "/editList.php";
@@ -63,7 +62,6 @@ public class CardsListActivity extends BaseActivity {
 
         Intent intent = getIntent();
         currentBoard = (Board) intent.getSerializableExtra("board");
-        getListsURL += currentBoard.getId();
         tvBoardName.setText(currentBoard.getName());
 
         shouldExecuteOnResume = false;
@@ -104,12 +102,6 @@ public class CardsListActivity extends BaseActivity {
                 addListDialog();
             }
         });
-        btRefreshLists.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showListsLocal();
-            }
-        });
         btAddUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,56 +124,8 @@ public class CardsListActivity extends BaseActivity {
     private void sync() {
         tvBoardName = (TextView) findViewById(R.id.tvBoardName);
         btAddList = (ImageButton) findViewById(R.id.btAddList);
-        btRefreshLists = (ImageButton) findViewById(R.id.btRefreshLists);
         btAddUser = (ImageButton) findViewById(R.id.btAddUser);
         expList = (ExpandableListView) findViewById(R.id.expList);
-    }
-
-    private void getLists(String url) {
-        listList.clear();
-        listCard.clear();
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        for(int i = 0; i < response.length(); i++) {
-                            try {
-                                JSONObject obj = response.getJSONObject(i);
-                                listList.add(new CardList(obj.getInt("id"), obj.getString("name")));
-                                ArrayList<Card> cards = new ArrayList<>();
-                                JSONArray a = obj.getJSONArray("cards");
-                                for(int j = 0; j < a.length(); j++) {
-                                    JSONObject obj1 = a.getJSONObject(j);
-                                    cards.add(new Card(obj1.getInt("id"), obj1.getString("name")));
-                                }
-                                listCard.put(listList.get(i), cards);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        expandableListAdapter.notifyDataSetChanged();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Cursor cursor = getListsLocal(currentBoard.getId());
-                        while(cursor.moveToNext()) {
-                            CardList current = new CardList(cursor.getInt(0), cursor.getString(1));
-                            listList.add(current);
-                            Cursor cursor1 = getCardsLocal(cursor.getInt(0));
-                            ArrayList<Card> cards = new ArrayList<>();
-                            while (cursor1.moveToNext()) {
-                                cards.add(new Card(cursor1.getInt(0), cursor1.getString(1)));
-                            }
-                            listCard.put(current, cards);
-                        }
-                        expandableListAdapter.notifyDataSetChanged();
-                    }
-                }
-        );
-        requestQueue.add(jsonArrayRequest);
     }
 
     private void showListsLocal() {

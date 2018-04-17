@@ -33,7 +33,6 @@ import java.util.Map;
 
 public class BoardsListActivity extends BaseActivity {
 
-    private String getBoardsURL = baseURL + "/getBoardsData.php?email=";
     private String addBoardURL = baseURL + "/insertBoard.php";
     private String editBoardURL = baseURL + "/editBoard.php";
     private String deleteBoardURL = baseURL + "/deleteBoard.php";
@@ -53,7 +52,6 @@ public class BoardsListActivity extends BaseActivity {
         arrayBoard = new ArrayList<>();
         boardAdapter = new BoardAdapter(this, R.layout.item_board, arrayBoard);
         lvBoards.setAdapter(boardAdapter);
-        getBoardsURL += sp.getString("email","");
         Log.e("URL", getAllDataURL);
 
         if(sp.getString("first_load", "1").equals("1")) {
@@ -91,51 +89,21 @@ public class BoardsListActivity extends BaseActivity {
         btRefresh = (ImageButton) findViewById(R.id.btRefresh);
     }
 
-    private void getBoards(String url) {
-        arrayBoard.clear();
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        for(int i = 0; i < response.length(); i++) {
-                            try {
-                                JSONObject obj = response.getJSONObject(i);
-                                arrayBoard.add(new Board(obj.getInt("id"), obj.getString("name")));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        boardAdapter.notifyDataSetChanged();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Cursor cursor = getBoardsLocal();
-                        while(cursor.moveToNext()) {
-                            arrayBoard.add(new Board(cursor.getInt(0), cursor.getString(1)));
-                        }
-                        boardAdapter.notifyDataSetChanged();
-                    }
-                });
-        requestQueue.add(jsonArrayRequest);
-    }
-
     private void createUser(String url, final String name, final String email) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (response.trim().equals("1")) {
-                            Toast.makeText(BoardsListActivity.this, getString(R.string.registed), Toast.LENGTH_SHORT).show();
+                        String[] parts = response.trim().split("-");
+                        if (parts[0].equals("id")) {
+                            if (parts[1].equals("1")) {
+                                Toast.makeText(BoardsListActivity.this, getString(R.string.registed), Toast.LENGTH_SHORT).show();
+                            } else if(parts[1].equals("99")){
+                                Toast.makeText(BoardsListActivity.this, getString(R.string.welcome_back) + " " + name + "!", Toast.LENGTH_LONG).show();
+                            }
                             editor.putString("first_load", "0");
-                            editor.commit();
-                            getAllData(getAllDataURL);
-                        } else if(response.trim().equals("99")){
-                            Toast.makeText(BoardsListActivity.this, getString(R.string.welcome_back) + " " + name + "!", Toast.LENGTH_LONG).show();
-                            editor.putString("first_load", "0");
+                            editor.putString("idUser", parts[2]);
                             editor.commit();
                             getAllData(getAllDataURL);
                         } else {
@@ -323,6 +291,8 @@ public class BoardsListActivity extends BaseActivity {
                         if (parts[0].equals("id")) {
                             int idBoard = Integer.parseInt(parts[1].trim());
                             insertBoardLocal(idBoard, name, 1);
+                            addBoardMemberLocal(idBoard, Integer.parseInt(sp.getString("idUser", "0")),
+                                    sp.getString("email", ""), sp.getString("name", ""));
                             showBoardsLocal();
                             Toast.makeText(BoardsListActivity.this, getString(R.string.add_success), Toast.LENGTH_SHORT).show();
                         } else {
@@ -334,9 +304,6 @@ public class BoardsListActivity extends BaseActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-//                        insertBoardLocalUnsync(name);
-//                        showBoardsLocal();
-//                        saveLocalAction("board", 0, 0, 0, "add", name, email, "", "", "", "", "");
                         Toast.makeText(BoardsListActivity.this, getString(R.string.errorServe), Toast.LENGTH_SHORT).show();
                     }
                 }

@@ -37,21 +37,13 @@
         </LinearLayout>
 
         <ImageButton
-            android:id="@+id/btRefreshCard"
-            android:layout_weight="4"
-            android:background="@drawable/button_background"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/refresh"/>
-
-        <ImageButton
             android:id="@+id/btCardOption"
-            android:layout_weight="4"
+            android:layout_weight="5"
             android:background="@drawable/button_background"
             android:layout_marginLeft="5dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/menu"/>
+            android:src="@android:drawable/ic_menu_more"/>
 
     </LinearLayout>
 

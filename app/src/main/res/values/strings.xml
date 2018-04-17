@@ -81,4 +81,5 @@
     <string name="no_one">No one left :))</string>
     <string name="choose_no_one">No one chosen</string>
     <string name="assign_success">Assign successfully!</string>
+    <string name="not_owner">You are not owner of this board!</string>
 </resources>

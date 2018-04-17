@@ -23,7 +23,7 @@
         android:layout_weight="8"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/edit"/>
+        android:src="@android:drawable/ic_menu_edit"/>
 
     <ImageButton
         android:id="@+id/btDeleteBoard"
@@ -31,6 +31,6 @@
         android:layout_weight="8"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/delete"/>
+        android:src="@android:drawable/ic_menu_delete"/>
 
 </LinearLayout>

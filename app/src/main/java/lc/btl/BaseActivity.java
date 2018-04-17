@@ -107,42 +107,6 @@ public class BaseActivity extends AppCompatActivity {
         dialog.getWindow().setAttributes(layoutParams);
     }
 
-    /*public void refreshData(String url) {
-        clearLocalData();
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        for(int i = 0; i < response.length(); i++) {
-                            try {
-                                JSONObject obj = response.getJSONObject(i);
-                                insertBoardLocal(obj.getInt("id"), obj.getString("name"), obj.getInt("is_owner"));
-                                JSONArray lists = obj.getJSONArray("lists");
-                                for(int j = 0; j < lists.length(); j++) {
-                                    JSONObject obj1 = lists.getJSONObject(j);
-                                    insertListLocal(obj1.getInt("id"), obj1.getString("name"), obj1.getInt("idBoard"));
-                                    JSONArray cards = obj1.getJSONArray("cards");
-                                    for(int k = 0; k < cards.length(); k++) {
-                                        JSONObject obj2 = cards.getJSONObject(k);
-                                        insertCardLocal(obj2.getInt("id"), obj2.getString("name"), obj2.getString("description"), obj2.getString("date"), obj2.getString("time"), obj2.getString("location"), obj2.getString("lat"), obj2.getString("lng"), obj2.getInt("idList"));
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(BaseActivity.this, getString(R.string.errorServe), Toast.LENGTH_SHORT).show();
-                    }
-                });
-        requestQueue.add(jsonArrayRequest);
-    }*/
-
     public void infoDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_information);
@@ -152,7 +116,6 @@ public class BaseActivity extends AppCompatActivity {
         TextView tvUserEmail = (TextView) dialog.findViewById(R.id.tvUserEmail);
         Button btCloseInfo = (Button) dialog.findViewById(R.id.btCloseInfo);
         Button btLogOut = (Button) dialog.findViewById(R.id.btLogOut);
-        Button btSync = (Button) dialog.findViewById(R.id.btSync);
 
         SharedPreferences sp = getSharedPreferences("currentUser", MODE_PRIVATE);
         String name = sp.getString("name","");
@@ -176,13 +139,6 @@ public class BaseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 logOutDialog();
-            }
-        });
-
-        btSync.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
             }
         });
 
@@ -320,6 +276,10 @@ public class BaseActivity extends AppCompatActivity {
         Log.e("DATABASE", "delete card " + id);
     }
 
+    public void removeCardMemberLocal(int idCard, int idUser) {
+        database.queryData("DELETE FROM card_users WHERE idCard = " + idCard + " AND idUser = " + idUser);
+    }
+
     public void insertListLocal(int id, String name, int idBoard) {
         name = name.replace("'","''");
         database.queryData("INSERT INTO cardslist VALUES(" + id + ",'" + name + "'," + idBoard + ")");
@@ -362,6 +322,10 @@ public class BaseActivity extends AppCompatActivity {
 
     public Cursor getMemberInfo(int idBoard, int idUser) {
         return database.getData("SELECT * FROM board_users WHERE idBoard = " + idBoard + " AND idUser = " + idUser);
+    }
+
+    public Cursor getUser(String email) {
+        return database.getData("SELECT * FROM card_users WHERE email = '" + email + "' LIMIT 1");
     }
 
     public boolean isAssigned(int idCard, int idUser) {

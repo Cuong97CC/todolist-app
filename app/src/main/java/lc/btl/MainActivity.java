@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             updateUI(account);
         } catch (ApiException e) {
+            Log.e("api",e.toString());
             updateUI(null);
         }
     }

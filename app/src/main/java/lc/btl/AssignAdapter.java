@@ -67,6 +67,13 @@ public class AssignAdapter extends BaseAdapter {
         viewHolder.tvName.setText(user.getName());
         viewHolder.tvEmail.setText(user.getEmail());
 
+        viewHolder.btRemoveMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                context.removeMember(user.getEmail());
+            }
+        });
+
         return convertView;
     }
 }

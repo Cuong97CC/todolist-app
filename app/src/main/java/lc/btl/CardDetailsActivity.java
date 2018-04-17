@@ -60,7 +60,7 @@ public class CardDetailsActivity extends BaseActivity {
     private String deleteCardURL = baseURL + "/deleteCard.php";
     private String setTimeURL = baseURL + "/setTime.php";
     private String setLocationURL = baseURL + "/setLocation.php";
-    private String currentId;
+    public String currentId;
     private int is_owner;
     private String soundStatus;
     private Card currentCard;
@@ -111,13 +111,6 @@ public class CardDetailsActivity extends BaseActivity {
 
         showCardDetailsLocal();
 
-        btRefreshCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCardDetailsLocal();
-            }
-        });
-
         btCardOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,7 +152,6 @@ public class CardDetailsActivity extends BaseActivity {
         tvDescription = (TextView) findViewById(R.id.tvDescription);
         tvTime = (TextView) findViewById(R.id.tvTime);
         btCardOption = (ImageButton) findViewById(R.id.btCardOption);
-        btRefreshCard = (ImageButton) findViewById(R.id.btRefreshCard);
         swNotification = (Switch) findViewById(R.id.swNotification);
         btDirection = (ImageButton) findViewById(R.id.btDirection);
         tvLocation = (TextView) findViewById(R.id.tvLocation);
@@ -716,6 +708,9 @@ public class CardDetailsActivity extends BaseActivity {
                         if (response.trim().equals("1")) {
                             setTimeLocal(id, date, time);
                             showCardDetailsLocal();
+                            if(!timeNotSet() && !expired()) {
+                                swNotification.setChecked(true);
+                            }
                             Toast.makeText(CardDetailsActivity.this, getString(R.string.set_time_success), Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(CardDetailsActivity.this, getString(R.string.errorPOST), Toast.LENGTH_SHORT).show();
@@ -878,5 +873,27 @@ public class CardDetailsActivity extends BaseActivity {
         extras.putString("lng", currentCard.getLng());
         intent.putExtras(extras);
         startActivity(intent);
+    }
+
+    public void removeMember(String email) {
+        Cursor cursor = getUser(email);
+        if(cursor != null)
+        {
+            if (cursor.moveToFirst()) {
+                int id = cursor.getInt(1);
+                removeCardMemberLocal(Integer.parseInt(currentId), id);
+                Cursor cursor1 = getCardMemberLocal(Integer.parseInt(currentId));
+                arrayUser.clear();
+                while (cursor1.moveToNext()) {
+                    arrayUser.add(new User(cursor1.getInt(1),cursor1.getString(2),cursor1.getString(3)));
+                }
+                if(arrayUser.size() > 0) {
+                    tvAssign.setVisibility(View.GONE);
+                } else {
+                    tvAssign.setVisibility(View.VISIBLE);
+                }
+                assignAdapter.notifyDataSetChanged();
+            }
+        }
     }
 }
