@@ -31,17 +31,12 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -67,7 +62,7 @@ public class CardDetailsActivity extends BaseActivity {
     private String listName, boardName, boardId;
     int PLACE_PICKER_REQUEST = 1;
     TextView tvCardName, tvCardPosition, tvDescription, tvTime, tvLocation, tvAssign;
-    ImageButton btRefreshCard, btCardOption, btDirection;
+    ImageButton btCardOption, btDirection;
     ListView lvCardMember;
     EditText savedEditText;
     TextView savedTvLat, savedTvLng;
