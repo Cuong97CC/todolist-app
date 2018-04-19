@@ -8,9 +8,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 
 /**
@@ -30,47 +32,57 @@ public class NotificationService extends Service {
         Context context = this.getApplicationContext();
         SharedPreferences sp = context.getSharedPreferences("currentUser", MODE_PRIVATE);
         String email = sp.getString("email","");
-        if(!email.trim().equals("")) {
-            String status = intent.getExtras().getString("status");
-            if (status != null && status.equals("on")) {
-                String userEmail = intent.getExtras().getString("userEmail");
-                if(userEmail != null && userEmail.equals(email)) {
-                    String cardName = intent.getExtras().getString("cardName");
-                    String cardId = intent.getExtras().getString("cardId");
-                    String boardId = intent.getExtras().getString("boardId");
-                    String boardName = intent.getExtras().getString("boardName");
-                    String listName = intent.getExtras().getString("listName");
-                    int is_owner = intent.getExtras().getInt("is_owner");
+        String cardId = intent.getExtras().getString("cardId");
+        String status = intent.getExtras().getString("status");
+        LocalDatabse database = new LocalDatabse(context, "todolist.sql", null, 1);
+        Cursor cursor = database.getData("SELECT * FROM card WHERE id = " + cardId);
+        if (cursor.moveToFirst()) {
+            if (!email.trim().equals("")) {
+                if (status != null && status.equals("on")) {
+                    String userEmail = intent.getExtras().getString("userEmail");
+                    if (userEmail != null && userEmail.equals(email)) {
+                        String cardName = intent.getExtras().getString("cardName");
+                        String boardId = intent.getExtras().getString("boardId");
+                        String boardName = intent.getExtras().getString("boardName");
+                        String listName = intent.getExtras().getString("listName");
+                        int is_owner = intent.getExtras().getInt("is_owner");
 
-                    SoundControl.getInstance(context).playMusic();
+                        SoundControl.getInstance(context).playMusic();
 
-                    NotificationManager notificationManager = (NotificationManager)
-                            context.getSystemService(NOTIFICATION_SERVICE);
-                    Intent intent_card_detail = new Intent(context, CardDetailsActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putString("cardId", cardId);
-                    extras.putString("boardId", boardId);
-                    extras.putString("boardName", boardName);
-                    extras.putString("listName", listName);
-                    extras.putInt("is_owner", is_owner);
-                    extras.putString("status", "off");
-                    intent_card_detail.putExtras(extras);
+                        NotificationManager notificationManager = (NotificationManager)
+                                context.getSystemService(NOTIFICATION_SERVICE);
+                        Intent intent_card_detail = new Intent(context, CardDetailsActivity.class);
+                        Bundle extras = new Bundle();
+                        extras.putString("cardId", cardId);
+                        extras.putString("boardId", boardId);
+                        extras.putString("boardName", boardName);
+                        extras.putString("listName", listName);
+                        extras.putInt("is_owner", is_owner);
+                        extras.putString("status", "off");
+                        intent_card_detail.putExtras(extras);
 
-                    PendingIntent pendingIntent = PendingIntent.getActivity(context, Integer.valueOf(cardId), intent_card_detail, PendingIntent.FLAG_ONE_SHOT);
+                        PendingIntent pendingIntent = PendingIntent.getActivity(context, Integer.valueOf(cardId), intent_card_detail, PendingIntent.FLAG_ONE_SHOT);
 
-                    Notification notification = new Notification.Builder(context)
-                            .setContentTitle(cardName)
-                            .setContentText(getString(R.string.notification_content))
-                            .setSmallIcon(R.drawable.alarm)
-                            .setContentIntent(pendingIntent)
-                            .setAutoCancel(true)
-                            .build();
+                        Notification notification = new Notification.Builder(context)
+                                .setContentTitle(cardName)
+                                .setContentText(getString(R.string.notification_content))
+                                .setSmallIcon(R.drawable.alarm)
+                                .setContentIntent(pendingIntent)
+                                .setAutoCancel(true)
+                                .setOngoing(true)
+                                .build();
 
-                    notificationManager.notify(Integer.valueOf(cardId), notification);
+                        notificationManager.notify(Integer.valueOf(cardId), notification);
+                        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "Tag");
+                        wakeLock.acquire();
+                        wakeLock.release();
+                    }
                 }
-            } else if (status != null && status.equals("off")) {
-                SoundControl.getInstance(context).stopMusic();
             }
+        }
+        if (status != null && status.equals("off")) {
+            SoundControl.getInstance(context).stopMusic();
         }
         return START_NOT_STICKY;
     }
