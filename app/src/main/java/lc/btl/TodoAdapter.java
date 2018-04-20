@@ -70,7 +70,7 @@ public class TodoAdapter extends BaseAdapter{
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
         if (list.get(i).getName().length() > 20) {
-            holder.tvName.setText(list.get(i).getName().substring(0,20) + "...");
+            holder.tvName.setText(list.get(i).getName().substring(0,19) + "...");
         } else {
             holder.tvName.setText(list.get(i).getName());
         }

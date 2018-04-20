@@ -90,10 +90,10 @@ public class CardDetailsActivity extends BaseActivity {
         currentCard = new Card();
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         intentReciever = new Intent(CardDetailsActivity.this, AlarmReciever.class);
+        sharedPreferences = getSharedPreferences("alarmsID", MODE_PRIVATE);
         if(soundStatus != null && soundStatus.equals("off")) {
             stopSound();
         }
-        sharedPreferences = getSharedPreferences("alarmsID", MODE_PRIVATE);
 
         sync();
 
@@ -867,6 +867,7 @@ public class CardDetailsActivity extends BaseActivity {
     }
 
     private void stopSound() {
+        cancelAlarm();
         intentReciever.putExtra("status", "off");
         sendBroadcast(intentReciever);
     }

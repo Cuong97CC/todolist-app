@@ -10,7 +10,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -62,7 +61,11 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.MyView
     @Override
     public void onBindViewHolder(final MyView holder, final int position) {
         holder.layout.setOnDragListener(myOnDragListener);
-        holder.textView.setText(list.get(position).getName());
+        if (list.get(position).getName().length() > 10) {
+            holder.textView.setText(list.get(position).getName().substring(0,9) + "...");
+        } else {
+            holder.textView.setText(list.get(position).getName());
+        }
         TodoAdapter adapter = new TodoAdapter(context,R.layout.item_card_f,list.get(position).getId(),list.get(position).getCards());
 
         holder.lvTest.setAdapter(adapter);

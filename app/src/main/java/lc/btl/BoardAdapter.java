@@ -68,7 +68,11 @@ public class BoardAdapter extends BaseAdapter {
 
         final Board board = boardList.get(position);
 
-        viewHolder.btBoardName.setText(board.getName());
+        if (board.getName().length() > 10) {
+            viewHolder.btBoardName.setText(board.getName().substring(0,9) + "...");
+        } else {
+            viewHolder.btBoardName.setText(board.getName());
+        }
 
         viewHolder.btEditBoard.setOnClickListener(new View.OnClickListener() {
             @Override

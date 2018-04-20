@@ -22,15 +22,11 @@ public class Card implements Serializable{
         this.lng = "";
     }
 
-    public Card(int id, String name) {
+    public Card(int id, String name, String date, String time) {
         this.id = id;
         this.name = name;
-        this.description = "";
-        this.date = "";
-        this.time = "";
-        this.location = "";
-        this.lat = "";
-        this.lng = "";
+        this.date = date;
+        this.time = time;
     }
 
     public Card(int id, String name, String date, String time, int idList) {
@@ -43,17 +39,6 @@ public class Card implements Serializable{
         this.lat = "";
         this.lng = "";
         this.idList = idList;
-    }
-
-    public Card(int id, String name, String description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.date = "";
-        this.time = "";
-        this.location = "";
-        this.lat = "";
-        this.lng = "";
     }
 
     public int getIdList() {
