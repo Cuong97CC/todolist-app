@@ -12,7 +12,6 @@ public class Board implements Serializable {
     private String name;
     private ArrayList<CardList> cardLists;
     private int is_owner;
-    private boolean unsynced;
 
     public Board(String name) {
         this.name = name;
@@ -27,21 +26,6 @@ public class Board implements Serializable {
         this.id = id;
         this.name = name;
         this.is_owner = is_owner;
-    }
-
-    public Board(int id, String name, int is_owner, boolean unsynced) {
-        this.id = id;
-        this.name = name;
-        this.is_owner = is_owner;
-        this.unsynced = unsynced;
-    }
-
-    public boolean isUnsynced() {
-        return unsynced;
-    }
-
-    public void setUnsynced(boolean unsynced) {
-        this.unsynced = unsynced;
     }
 
     public int getIs_owner() {

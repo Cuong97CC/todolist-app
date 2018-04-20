@@ -53,13 +53,14 @@ public class CardDetailsActivity extends BaseActivity {
     private String editCardURL = baseURL + "/editCard.php";
     private String assignURL = baseURL + "/assign.php";
     private String deleteCardURL = baseURL + "/deleteCard.php";
+    private String removeCardMemberURL = baseURL + "/removeCardMember.php";
     private String setTimeURL = baseURL + "/setTime.php";
     private String setLocationURL = baseURL + "/setLocation.php";
     public String currentId;
     private int is_owner;
     private String soundStatus;
     private Card currentCard;
-    private String listName, boardName, boardId;
+    private String boardName, boardId;
     int PLACE_PICKER_REQUEST = 1;
     TextView tvCardName, tvCardPosition, tvDescription, tvTime, tvLocation, tvAssign;
     ImageButton btCardOption, btDirection;
@@ -81,7 +82,6 @@ public class CardDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_card_details);
 
         Intent intent = getIntent();
-        listName = intent.getExtras().getString("listName");
         boardName = intent.getExtras().getString("boardName");
         boardId = intent.getExtras().getString("boardId");
         currentId = intent.getExtras().getString("cardId");
@@ -98,7 +98,6 @@ public class CardDetailsActivity extends BaseActivity {
         sync();
 
         tvCardName.setText(currentCard.getName());
-        tvCardPosition.setText(getString(R.string.list) + " " + listName + " ~ " + getString(R.string.board) + " " + boardName);
         arrayUser = new ArrayList<>();
         checkedUser = new ArrayList<>();
         assignAdapter = new AssignAdapter(this, R.layout.item_member_card, arrayUser);
@@ -167,6 +166,11 @@ public class CardDetailsActivity extends BaseActivity {
                 currentCard.setLocation(cursor.getString(5));
                 currentCard.setLat(cursor.getString(6));
                 currentCard.setLng(cursor.getString(7));
+                Cursor cursor2 = getList(cursor.getInt(8));
+                if (cursor2 != null && cursor2.moveToFirst()) {
+                    String listName = cursor2.getString(1);
+                    tvCardPosition.setText(getString(R.string.list) + " " + listName + " ~ " + getString(R.string.board) + " " + boardName);
+                }
                 refresh();
             }
         }
@@ -497,6 +501,73 @@ public class CardDetailsActivity extends BaseActivity {
         dialog.show();
     }
 
+    public void removeCardMemberDialog(final String email, String name) {
+        if (is_owner == 0) {
+            Toast.makeText(this, getString(R.string.not_owner), Toast.LENGTH_SHORT).show();
+        } else {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setMessage("Are you sure want to remove " + name + " from card " + currentCard.getName() + "?");
+
+            dialog.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Cursor cursor = getUser(email);
+                    int idUser = 0;
+                    if (cursor != null) {
+                        if (cursor.moveToFirst()) {
+                            idUser = cursor.getInt(1);
+                        }
+                    }
+                    dialog.dismiss();
+                    removeCardMember(removeCardMemberURL, currentCard.getId(), idUser);
+                }
+            });
+
+            dialog.show();
+        }
+    }
+
+    public void removeCardMember(String url, final int idCard, final int idUser) {
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.trim().equals("1")) {
+                            removeCardMemberLocal(idCard, idUser);
+                            showCardDetailsLocal();
+                            Toast.makeText(CardDetailsActivity.this, getString(R.string.removed), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(CardDetailsActivity.this, getString(R.string.errorPOST), Toast.LENGTH_SHORT).show();
+                            Log.e("ERROR", response);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(CardDetailsActivity.this, getString(R.string.errorServe), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("idCard", String.valueOf(idCard));
+                params.put("idUser", String.valueOf(idUser));
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
     public void deleteCard(String url, final int id) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -749,7 +820,6 @@ public class CardDetailsActivity extends BaseActivity {
             extras.putString("cardId", String.valueOf(currentCard.getId()));
             extras.putString("boardId", String.valueOf(boardId));
             extras.putString("boardName", boardName);
-            extras.putString("listName", listName);
             extras.putInt("is_owner", is_owner);
             extras.putString("status", "on");
             intentReciever.putExtras(extras);
@@ -868,27 +938,5 @@ public class CardDetailsActivity extends BaseActivity {
         extras.putString("lng", currentCard.getLng());
         intent.putExtras(extras);
         startActivity(intent);
-    }
-
-    public void removeMember(String email) {
-        Cursor cursor = getUser(email);
-        if(cursor != null)
-        {
-            if (cursor.moveToFirst()) {
-                int id = cursor.getInt(1);
-                removeCardMemberLocal(Integer.parseInt(currentId), id);
-                Cursor cursor1 = getCardMemberLocal(Integer.parseInt(currentId));
-                arrayUser.clear();
-                while (cursor1.moveToNext()) {
-                    arrayUser.add(new User(cursor1.getInt(1),cursor1.getString(2),cursor1.getString(3)));
-                }
-                if(arrayUser.size() > 0) {
-                    tvAssign.setVisibility(View.GONE);
-                } else {
-                    tvAssign.setVisibility(View.VISIBLE);
-                }
-                assignAdapter.notifyDataSetChanged();
-            }
-        }
     }
 }

@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,15 +45,18 @@ public class CardsListActivity extends BaseActivity {
     private String editListURL = baseURL + "/editList.php";
     private String addCardURL = baseURL + "/insertCard.php";
     private String addUserURL = baseURL + "/addMember.php";
+    final public String moveCardURL = baseURL + "/moveCard.php";
 
     boolean shouldExecuteOnResume;
-    ExpandableListView expList;
     TextView tvBoardName;
-    ImageButton btAddList, btRefreshLists, btAddUser;
+    ImageButton btAddList, btAddUser;
     ArrayList<CardList> listList;
-    HashMap<CardList , ArrayList<Card>> listCard;
     Board currentBoard;
-    ExpandableListAdapter expandableListAdapter;
+
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager RecyclerViewLayoutManager;
+    CardListAdapter RecyclerViewHorizontalAdapter;
+    LinearLayoutManager HorizontalLayout ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,23 +71,6 @@ public class CardsListActivity extends BaseActivity {
 
         shouldExecuteOnResume = false;
         listList = new ArrayList<>();
-        listCard = new HashMap<CardList , ArrayList<Card>>();
-
-        expandableListAdapter = new ExpandableListAdapter(CardsListActivity.this, listList, listCard);
-        expList.setAdapter(expandableListAdapter);
-
-        expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                CardList list = listList.get(groupPosition);
-                Card card = listCard.get(list).get(childPosition);
-                String listName = list.getName();
-                showCardDetails(card, currentBoard.getName(), listName, currentBoard.getIs_owner());
-                return false;
-            }
-        });
-
-        showListsLocal();
 
         if(currentBoard.getIs_owner() == 0) {
             btAddUser.setEnabled(false);
@@ -108,6 +96,22 @@ public class CardsListActivity extends BaseActivity {
                 addUserDialog();
             }
         });
+
+
+        recyclerView = (RecyclerView)findViewById(R.id.recyclerview1);
+
+        RecyclerViewLayoutManager = new LinearLayoutManager(getApplicationContext());
+
+        recyclerView.setLayoutManager(RecyclerViewLayoutManager);
+
+        RecyclerViewHorizontalAdapter = new CardListAdapter(this,listList);
+
+        HorizontalLayout = new LinearLayoutManager(CardsListActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(HorizontalLayout);
+
+        recyclerView.setAdapter(RecyclerViewHorizontalAdapter);
+
+        showListsLocal();
     }
 
     @Override
@@ -125,24 +129,22 @@ public class CardsListActivity extends BaseActivity {
         tvBoardName = (TextView) findViewById(R.id.tvBoardName);
         btAddList = (ImageButton) findViewById(R.id.btAddList);
         btAddUser = (ImageButton) findViewById(R.id.btAddUser);
-        expList = (ExpandableListView) findViewById(R.id.expList);
     }
 
     private void showListsLocal() {
         listList.clear();
-        listCard.clear();
         Cursor cursor = getListsLocal(currentBoard.getId());
         while(cursor.moveToNext()) {
             CardList current = new CardList(cursor.getInt(0), cursor.getString(1));
-            listList.add(current);
             Cursor cursor1 = getCardsLocal(cursor.getInt(0));
             ArrayList<Card> cards = new ArrayList<>();
             while (cursor1.moveToNext()) {
-                cards.add(new Card(cursor1.getInt(0), cursor1.getString(1)));
+                cards.add(new Card(cursor1.getInt(0), cursor1.getString(1),cursor1.getString(3),cursor1.getString(4), cursor1.getInt(8)));
             }
-            listCard.put(current, cards);
+            current.setCards(cards);
+            listList.add(current);
         }
-        expandableListAdapter.notifyDataSetChanged();
+        RecyclerViewHorizontalAdapter.notifyDataSetChanged();
     }
 
     private void addListDialog() {
@@ -292,6 +294,44 @@ public class CardsListActivity extends BaseActivity {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public void moveCard(String url, final String idCard, final String oldList, final String newList) {
+        if (currentBoard.getIs_owner() == 0) {
+            Toast.makeText(this, getString(R.string.not_owner), Toast.LENGTH_SHORT).show();
+        } else {
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (response.trim().equals("1")) {
+                                moveCardLocal(idCard, oldList, newList);
+                                showListsLocal();
+                                Toast.makeText(CardsListActivity.this, getString(R.string.moved), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(CardsListActivity.this, getString(R.string.errorPOST), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(CardsListActivity.this, getString(R.string.errorServe), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+            ) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("idCard", idCard);
+                    params.put("oldList", oldList);
+                    params.put("newList", newList);
+                    return params;
+                }
+            };
+            requestQueue.add(stringRequest);
+        }
     }
 
     public void showListOptions(ImageButton button, final CardList list) {
@@ -526,13 +566,12 @@ public class CardsListActivity extends BaseActivity {
         requestQueue.add(stringRequest);
     }
 
-    private void showCardDetails(Card card, String boardName, String listName, int is_owner) {
+    public void showCardDetails(Card card, String boardName, int is_owner) {
         Intent intent = new Intent(CardsListActivity.this, CardDetailsActivity.class);
         Bundle extras = new Bundle();
         extras.putString("cardId", String.valueOf(card.getId()));
         extras.putString("boardId", String.valueOf(currentBoard.getId()));
         extras.putString("boardName", boardName);
-        extras.putString("listName", listName);
         extras.putInt("is_owner", is_owner);
         intent.putExtras(extras);
         startActivity(intent);

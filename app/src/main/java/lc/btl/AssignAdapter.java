@@ -70,7 +70,7 @@ public class AssignAdapter extends BaseAdapter {
         viewHolder.btRemoveMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                context.removeMember(user.getEmail());
+                context.removeCardMemberDialog(user.getEmail(),user.getName());
             }
         });
 

@@ -22,16 +22,15 @@
 
     </LinearLayout>
 
-    <ExpandableListView
-        android:id="@+id/expList"
-        android:groupIndicator="@null"
-        android:listSelector="@color/selected"
-        android:layout_marginBottom="50dp"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/listHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </ExpandableListView>
+        android:layout_above="@+id/footer"
+        android:minHeight="375dp"
+        android:fadeScrollbars="false"
+        android:scrollbars="none" />
 
     <LinearLayout
         android:id="@+id/footer"

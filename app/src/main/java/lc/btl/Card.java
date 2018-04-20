@@ -8,7 +8,7 @@ import java.util.Date;
  */
 
 public class Card implements Serializable{
-    private int id;
+    private int id, idList;
     private String name, description, date, time, location, lat, lng;
 
     public Card() {
@@ -33,6 +33,18 @@ public class Card implements Serializable{
         this.lng = "";
     }
 
+    public Card(int id, String name, String date, String time, int idList) {
+        this.id = id;
+        this.name = name;
+        this.date = date;
+        this.time = time;
+        this.description = "";
+        this.location = "";
+        this.lat = "";
+        this.lng = "";
+        this.idList = idList;
+    }
+
     public Card(int id, String name, String description) {
         this.id = id;
         this.name = name;
@@ -44,15 +56,12 @@ public class Card implements Serializable{
         this.lng = "";
     }
 
-    public Card(int id, String name, String description, String date, String time, String location, String lat, String lng) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.date = date;
-        this.time = time;
-        this.location = location;
-        this.lat = lat;
-        this.lng = lng;
+    public int getIdList() {
+        return idList;
+    }
+
+    public void setIdList(int idList) {
+        this.idList = idList;
     }
 
     public String getLocation() {

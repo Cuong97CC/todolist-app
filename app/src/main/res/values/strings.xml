@@ -19,7 +19,7 @@
     <string name="deleted">Deleted!</string>
     <string name="errorGET">GET Error!</string>
     <string name="errorPOST">POST Error!</string>
-    <string name="errorServe">Bad internet connection</string>
+    <string name="errorServe">Can not connect to server!</string>
     <string name="add_card">Add card</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
@@ -76,10 +76,13 @@
     <string name="notification_content">Touch to view details!</string>
     <string name="load_local">Local data loaded</string>
     <string name="please_refresh">Log in failed! Please refresh</string>
-    <string name="confirm_logout">Are you sure want to LOG OUT? Your unsaved data will be lost!</string>
+    <string name="confirm_logout">Are you sure want to LOG OUT?</string>
     <string name="sync">Sync</string>
     <string name="no_one">No one left :))</string>
     <string name="choose_no_one">No one chosen</string>
     <string name="assign_success">Assign successfully!</string>
     <string name="not_owner">You are not owner of this board!</string>
+    <string name="removed">Removed!</string>
+    <string name="empty">Empty</string>
+    <string name="moved">Moved</string>
 </resources>

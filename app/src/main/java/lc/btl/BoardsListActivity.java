@@ -374,8 +374,6 @@ public class BoardsListActivity extends BaseActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-//                        deleteBoardLocalUnsync(id);
-//                        showBoardsLocal();
                         Toast.makeText(BoardsListActivity.this, getString(R.string.errorServe), Toast.LENGTH_SHORT).show();
                     }
                 }

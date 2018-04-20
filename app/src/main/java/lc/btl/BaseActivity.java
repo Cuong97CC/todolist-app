@@ -332,6 +332,14 @@ public class BaseActivity extends AppCompatActivity {
         return database.getData("SELECT * FROM card_users WHERE idCard = " + idCard + " AND idUser = " + idUser).moveToFirst();
     }
 
+    public void moveCardLocal(String idCard, String oldList, String newList) {
+        database.queryData("UPDATE card SET idList = " + newList + " WHERE id = " + idCard + " AND idList = " + oldList);
+    }
+
+    public Cursor getList(int idList) {
+        return database.getData("SELECT * FROM cardslist WHERE id = " + idList);
+    }
+
     public void clearLocalData() {
         database.queryData("DELETE FROM boards");
         database.queryData("DELETE FROM cardslist");

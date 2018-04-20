@@ -44,7 +44,6 @@ public class NotificationService extends Service {
                         String cardName = intent.getExtras().getString("cardName");
                         String boardId = intent.getExtras().getString("boardId");
                         String boardName = intent.getExtras().getString("boardName");
-                        String listName = intent.getExtras().getString("listName");
                         int is_owner = intent.getExtras().getInt("is_owner");
 
                         SoundControl.getInstance(context).playMusic();
@@ -56,7 +55,6 @@ public class NotificationService extends Service {
                         extras.putString("cardId", cardId);
                         extras.putString("boardId", boardId);
                         extras.putString("boardName", boardName);
-                        extras.putString("listName", listName);
                         extras.putInt("is_owner", is_owner);
                         extras.putString("status", "off");
                         intent_card_detail.putExtras(extras);
