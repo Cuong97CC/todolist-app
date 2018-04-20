@@ -1,0 +1,76 @@
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardview"
+    android:layout_width="275dp"
+    android:layout_height="wrap_content"
+    card_view:contentPadding="7dp"
+    card_view:cardElevation="7dp"
+    card_view:cardBackgroundColor="#fff"
+    android:layout_margin="5dp" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1"
+        android:id="@+id/areaLv" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="3dp"
+            android:padding="2dp">
+            <TextView
+                android:id="@+id/textview1"
+                android:layout_marginLeft="5dp"
+                android:textSize="25sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:textColor="#000"/>
+            <ImageButton
+                android:layout_weight="8"
+                android:id="@+id/imageButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_dots"
+                android:background="@drawable/button_background"/>
+        </LinearLayout>
+
+
+        <lc.btl.LinearLayoutListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_marginBottom="5dp"
+            android:background="@color/titleBackground"
+            android:orientation="vertical"
+            android:id="@+id/pane1">
+
+            <ListView
+                android:id="@+id/lvTest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="150dp"
+                android:background="@color/titleBackground"
+                android:padding="5dp"
+                android:layout_weight="1"
+                android:divider="@null"
+                android:dividerHeight="5dp"
+                android:ellipsize="end">
+            </ListView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="5dp"
+                android:id="@+id/empty"
+                android:text="@string/empty"/>
+        </lc.btl.LinearLayoutListView>
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>
