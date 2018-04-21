@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Btl</string>
+    <string name="app_name">TODO</string>
     <string name="your_boards">Your Boards</string>
     <string name="members">members</string>
     <string name="new_board">New board</string>
@@ -50,14 +50,14 @@
     <string name="log_out">Log out</string>
     <string name="your_info">Your information</string>
     <string name="user_name">Name</string>
-    <string name="email">Email</string>
+    <string name="email">Account</string>
     <string name="close">Close</string>
     <string name="please">Please</string>
     <string name="to_continue">to continue!</string>
     <string name="add_member">Add member</string>
-    <string name="find_email">Find by email</string>
-    <string name="empty_email">Please enter an email to add!</string>
-    <string name="not_found_email">Not found user with email</string>
+    <string name="find_email">Find by email or phone</string>
+    <string name="empty_email">Please enter an email or phone to add!</string>
+    <string name="not_found_email">Not found user with </string>
     <string name="member_existed">This user has already in this board</string>
     <string name="assign">Assign to...</string>
     <string name="assigned">Assigned to:</string>
@@ -85,4 +85,5 @@
     <string name="removed">Removed!</string>
     <string name="empty">Empty</string>
     <string name="moved">Moved</string>
+    <string name="facebook_app_id">238902473343487</string>
 </resources>

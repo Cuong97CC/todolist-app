@@ -13,4 +13,5 @@
     <color name="itemBackground">#d9f6ff</color>
     <color name="infoBackground">#c6f2ff</color>
     <color name="unsync">#bebebe</color>
+    <color name="loginBackground">#defeff</color>
 </resources>
