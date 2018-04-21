@@ -1,6 +1,8 @@
 package lc.btl;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +30,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 
 /**
  * Created by THHNt on 2/10/2018.
@@ -42,6 +51,10 @@ public class BaseActivity extends AppCompatActivity {
     Dialog dialogInstance;
     SharedPreferences sp;
     SharedPreferences.Editor editor;
+    PendingIntent pendingIntent;
+    AlarmManager alarmManager;
+    Intent intentReciever;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +67,9 @@ public class BaseActivity extends AppCompatActivity {
         sp = getSharedPreferences("currentUser", MODE_PRIVATE);
         editor = sp.edit();
         getAllDataURL += sp.getString("email","");
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        intentReciever = new Intent(BaseActivity.this, AlarmReciever.class);
+        sharedPreferences = getSharedPreferences("alarmsID", MODE_PRIVATE);
 
         database = new LocalDatabse(this, "todolist.sql", null, 1);
         database.queryData("CREATE TABLE IF NOT EXISTS boards( id INTEGER PRIMARY KEY, name VARCHAR(255), is_owner INTEGER)");
@@ -342,5 +358,86 @@ public class BaseActivity extends AppCompatActivity {
         database.queryData("DELETE FROM card");
         database.queryData("DELETE FROM board_users");
         database.queryData("DELETE FROM card_users");
+    }
+
+    public void refreshAlarm(Card currentCard, String boardName, int boardId, int is_owner) {
+        if (timeNotSet(currentCard) || expired(currentCard)) {
+            cancelAlarm(currentCard);
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
+            try {
+                Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
+                calendar.setTime(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            SharedPreferences sp = getSharedPreferences("currentUser", MODE_PRIVATE);
+            Bundle extras = new Bundle();
+            extras.putString("userEmail", sp.getString("email", ""));
+            extras.putString("cardName", currentCard.getName());
+            extras.putString("cardId", String.valueOf(currentCard.getId()));
+            extras.putString("boardId", String.valueOf(boardId));
+            extras.putString("boardName", boardName);
+            extras.putInt("is_owner", is_owner);
+            extras.putString("status", "on");
+            intentReciever.putExtras(extras);
+            pendingIntent = PendingIntent.getBroadcast(
+                    BaseActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_UPDATE_CURRENT
+            );
+            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
+    }
+
+    public boolean checkAlarm(String[] ids, int currentId) {
+        String id = String.valueOf(currentId);
+        for(int i = 0; i < ids.length; i++) {
+            if (ids[i].equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void cancelAlarm(Card currentCard) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String id = sharedPreferences.getString("ids", "");
+        String[] ids = id.split(",");
+        if (checkAlarm(ids, currentCard.getId())) {
+            String currentId = String.valueOf(currentCard.getId());
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < ids.length; i++) {
+                if(!ids[i].equals(currentId)) {
+                    sb.append(ids[i]).append(",");
+                }
+            }
+            editor.putString("ids", sb.toString());
+            editor.apply();
+            pendingIntent = PendingIntent.getBroadcast(
+                    BaseActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_CANCEL_CURRENT
+            );
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    public boolean timeNotSet(Card currentCard) {
+        if(currentCard.getDate().trim().equals("")) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean expired(Card currentCard) {
+        Date now = new Date();
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
+        try {
+            Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
+            if(now.after(date)) {
+                return true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

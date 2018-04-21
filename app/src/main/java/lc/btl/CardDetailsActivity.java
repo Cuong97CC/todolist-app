@@ -68,10 +68,6 @@ public class CardDetailsActivity extends BaseActivity {
     EditText savedEditText;
     TextView savedTvLat, savedTvLng;
     Switch swNotification;
-    PendingIntent pendingIntent;
-    AlarmManager alarmManager;
-    Intent intentReciever;
-    SharedPreferences sharedPreferences;
     ArrayList<String> checkedUser;
     ArrayList<User> arrayUser;
     AssignAdapter assignAdapter;
@@ -88,9 +84,6 @@ public class CardDetailsActivity extends BaseActivity {
         is_owner = intent.getExtras().getInt("is_owner");
         soundStatus = intent.getExtras().getString("status");
         currentCard = new Card();
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        intentReciever = new Intent(CardDetailsActivity.this, AlarmReciever.class);
-        sharedPreferences = getSharedPreferences("alarmsID", MODE_PRIVATE);
         if(soundStatus != null && soundStatus.equals("off")) {
             stopSound();
         }
@@ -115,14 +108,14 @@ public class CardDetailsActivity extends BaseActivity {
         swNotification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(timeNotSet()) {
+                if(timeNotSet(currentCard)) {
                     Toast.makeText(CardDetailsActivity.this, getString(R.string.please_set_time), Toast.LENGTH_SHORT).show();
                     swNotification.setChecked(false);
                 } else {
                     if(isChecked) {
                         setAlarm();
                     } else {
-                        cancelAlarm();
+                        cancelAlarm(currentCard);
                     }
                 }
             }
@@ -192,7 +185,7 @@ public class CardDetailsActivity extends BaseActivity {
         } else {
             tvDescription.setText(currentCard.getDescription());
         }
-        if(timeNotSet()) {
+        if(timeNotSet(currentCard)) {
             tvTime.setText(getString(R.string.no_time));
         } else {
             tvTime.setText(currentCard.getDate() + " " + getString(R.string.at) + " " + currentCard.getTime());
@@ -658,7 +651,7 @@ public class CardDetailsActivity extends BaseActivity {
         final EditText edtSetDate = (EditText) dialog.findViewById(R.id.edtSetDate);
         final EditText edtSetTime = (EditText) dialog.findViewById(R.id.edtSetTime);
 
-        if(!timeNotSet()) {
+        if(!timeNotSet(currentCard)) {
             edtSetDate.setText(card.getDate());
             edtSetTime.setText(card.getTime());
         }
@@ -774,7 +767,7 @@ public class CardDetailsActivity extends BaseActivity {
                         if (response.trim().equals("1")) {
                             setTimeLocal(id, date, time);
                             showCardDetailsLocal();
-                            if(!timeNotSet() && !expired()) {
+                            if(!timeNotSet(currentCard) && !expired(currentCard)) {
                                 swNotification.setChecked(true);
                             }
                             Toast.makeText(CardDetailsActivity.this, getString(R.string.set_time_success), Toast.LENGTH_SHORT).show();
@@ -806,7 +799,7 @@ public class CardDetailsActivity extends BaseActivity {
     private void setAlarm() {
         Calendar calendar = Calendar.getInstance();
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
-        if(!expired()) {
+        if(!expired(currentCard)) {
             try {
                 Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
                 calendar.setTime(date);
@@ -830,7 +823,7 @@ public class CardDetailsActivity extends BaseActivity {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             String id = sharedPreferences.getString("ids", "");
             String[] ids = id.split(",");
-            if (!checkAlarm(ids)) {
+            if (!checkAlarm(ids,currentCard.getId())) {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < ids.length; i++) {
                     sb.append(ids[i]).append(",");
@@ -845,78 +838,20 @@ public class CardDetailsActivity extends BaseActivity {
         }
     }
 
-    private void cancelAlarm() {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String id = sharedPreferences.getString("ids", "");
-        String[] ids = id.split(",");
-        if (checkAlarm(ids)) {
-            String currentId = String.valueOf(currentCard.getId());
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < ids.length; i++) {
-                if(!ids[i].equals(currentId)) {
-                    sb.append(ids[i]).append(",");
-                }
-            }
-            editor.putString("ids", sb.toString());
-            editor.apply();
-            pendingIntent = PendingIntent.getBroadcast(
-                    CardDetailsActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_CANCEL_CURRENT
-            );
-            alarmManager.cancel(pendingIntent);
-        }
-    }
-
     private void stopSound() {
-        cancelAlarm();
+        cancelAlarm(currentCard);
         intentReciever.putExtra("status", "off");
         sendBroadcast(intentReciever);
     }
 
-    private boolean checkAlarm(String[] ids) {
-        String id = String.valueOf(currentId);
-        for(int i = 0; i < ids.length; i++) {
-            if (ids[i].equals(id)) {
-                Log.e("checkId", "true");
-                return true;
-            }
-        }
-        Log.e("checkId", "false");
-        return false;
-    }
-
-    private boolean timeNotSet() {
-        if(currentCard.getDate().trim().equals("")) {
-            Log.e("time_not_set", "true");
-            return true;
-        }
-        Log.e("time_not_set", "false");
-        return false;
-    }
-
-    private boolean expired() {
-        Date now = new Date();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
-        try {
-            Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
-            if(now.after(date)) {
-                Log.e("expired", "true");
-                return true;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        Log.e("expired", "false");
-        return false;
-    }
-
     private void switchAlarmCheck() {
-        if(expired() || timeNotSet()) {
+        if(expired(currentCard) || timeNotSet(currentCard)) {
             swNotification.setChecked(false);
-            cancelAlarm();
+            cancelAlarm(currentCard);
         } else {
             String id = sharedPreferences.getString("ids", "");
             String[] ids = id.split(",");
-            if (checkAlarm(ids)) {
+            if (checkAlarm(ids, currentCard.getId())) {
                 swNotification.setChecked(true);
                 setAlarm();
             } else {

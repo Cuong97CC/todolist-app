@@ -1,11 +1,8 @@
 package lc.btl;
 
-import android.app.AlarmManager;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -30,14 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 public class BoardsListActivity extends BaseActivity {
@@ -50,19 +41,11 @@ public class BoardsListActivity extends BaseActivity {
     ImageButton btAddBoard, btRefresh;
     ArrayList<Board> arrayBoard;
     BoardAdapter boardAdapter;
-    PendingIntent pendingIntent;
-    AlarmManager alarmManager;
-    Intent intentReciever;
-    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_boards_list);
-
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        intentReciever = new Intent(BoardsListActivity.this, AlarmReciever.class);
-        sharedPreferences = getSharedPreferences("alarmsID", MODE_PRIVATE);
 
         sync();
 
@@ -209,41 +192,6 @@ public class BoardsListActivity extends BaseActivity {
                     }
                 });
         requestQueue.add(jsonArrayRequest);
-    }
-
-    private void refreshAlarm(Card currentCard, String boardName, int boardId, int is_owner) {
-        Calendar calendar = Calendar.getInstance();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
-        try {
-            Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
-            calendar.setTime(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        SharedPreferences sp = getSharedPreferences("currentUser", MODE_PRIVATE);
-        Bundle extras = new Bundle();
-        extras.putString("userEmail", sp.getString("email",""));
-        extras.putString("cardName", currentCard.getName());
-        extras.putString("cardId", String.valueOf(currentCard.getId()));
-        extras.putString("boardId", String.valueOf(boardId));
-        extras.putString("boardName", boardName);
-        extras.putInt("is_owner", is_owner);
-        extras.putString("status", "on");
-        intentReciever.putExtras(extras);
-        pendingIntent = PendingIntent.getBroadcast(
-                    BoardsListActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_UPDATE_CURRENT
-        );
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-    }
-
-    private boolean checkAlarm(String[] ids, int currentId) {
-        String id = String.valueOf(currentId);
-        for(int i = 0; i < ids.length; i++) {
-            if (ids[i].equals(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void addBoardDialog() {
