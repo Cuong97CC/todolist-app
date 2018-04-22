@@ -113,8 +113,6 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.MyView
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
-
-
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     break;
@@ -123,24 +121,19 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.MyView
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
                 case DragEvent.ACTION_DROP:
-
                     CardPassObj passObj = (CardPassObj)event.getLocalState();
-                    View view = passObj.view;
                     Card passedItem = passObj.item;
-                    List<Card> srcList = passObj.srcList;
                     int oldList = passedItem.getIdList();
-                    ListView oldParent = (ListView)view.getParent();
-                    TodoAdapter srcAdapter = (TodoAdapter)(oldParent.getAdapter());
 
                     LinearLayoutListView newParent = (LinearLayoutListView)v;
                     TodoAdapter destAdapter = (TodoAdapter)(newParent.listView.getAdapter());
-                    List<Card> destList = destAdapter.getList();
                     int newList = destAdapter.getIdList();
 
                     context.moveCard(context.moveCardURL,String.valueOf(passedItem.getId()), String.valueOf(oldList), String.valueOf(newList));
 
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
+                    break;
                 default:
                     break;
             }

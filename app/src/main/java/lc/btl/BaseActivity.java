@@ -44,7 +44,8 @@ import java.util.Locale;
 
 public class BaseActivity extends AppCompatActivity {
 
-    public String baseURL = "https://todolistv1.000webhostapp.com";
+//    public String baseURL = "https://todolistv1.000webhostapp.com";
+    public String baseURL = "http://123.24.173.56/apiv1";
     public String getAllDataURL = baseURL + "/getAllData.php?email=";
     private GoogleSignInClient mGoogleSignInClient;
     LocalDatabse database;

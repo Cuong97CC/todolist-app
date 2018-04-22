@@ -1,7 +1,7 @@
 package lc.btl;
 
 import android.app.Activity;
-import android.content.Context;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class TodoAdapter extends BaseAdapter{
     CardsListActivity context;
-    int resource;
+    private int resource;
     private int idList;
     private List<Card> list;
 
@@ -111,15 +112,10 @@ class ItemOnDragListener implements View.OnDragListener {
                 v.setBackgroundColor(v.getResources().getColor(android.R.color.background_light));
                 break;
             case DragEvent.ACTION_DROP:
-
-
                 CardPassObj passObj = (CardPassObj)event.getLocalState();
-                View view = passObj.view;
                 Card passedItem = passObj.item;
                 int oldList = passedItem.getIdList();
                 List<Card> srcList = passObj.srcList;
-                ListView oldParent = (ListView)view.getParent();
-                TodoAdapter srcAdapter = (TodoAdapter)(oldParent.getAdapter());
 
                 ListView newParent = (ListView)v.getParent();
                 TodoAdapter destAdapter = (TodoAdapter)(newParent.getAdapter());
@@ -133,14 +129,15 @@ class ItemOnDragListener implements View.OnDragListener {
 				 * ignore
 				 */
                 if(srcList != destList || removeLocation != insertLocation){
-                    context.moveCard(context.moveCardURL,String.valueOf(passedItem.getId()), String.valueOf(oldList), String.valueOf(newList));
+                    if (oldList != newList) {
+                        context.moveCard(context.moveCardURL, String.valueOf(passedItem.getId()), String.valueOf(oldList), String.valueOf(newList));
+                    }
                 }
 
                 v.setBackgroundColor( v.getResources().getColor(android.R.color.background_light));
 
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
-
                 v.setBackgroundColor(v.getResources().getColor(android.R.color.background_light));
             default:
                 break;

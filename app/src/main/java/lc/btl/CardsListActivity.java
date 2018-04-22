@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -112,6 +113,37 @@ public class CardsListActivity extends BaseActivity {
         recyclerView.setAdapter(RecyclerViewHorizontalAdapter);
 
         showListsLocal();
+        handleScrollOnDrag();
+    }
+
+    private void handleScrollOnDrag() {
+        recyclerView.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                switch (event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        break;
+                    case DragEvent.ACTION_DRAG_LOCATION:
+                        if (event.getX() < v.getWidth()*0.2) {
+                            recyclerView.smoothScrollBy(-30,0);
+                        } else if (event.getX() > v.getWidth()*0.8) {
+                            recyclerView.smoothScrollBy(+30,0);
+                        }
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        break;
+                    case DragEvent.ACTION_DROP:
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     @Override

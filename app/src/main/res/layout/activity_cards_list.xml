@@ -30,7 +30,8 @@
         android:layout_above="@+id/footer"
         android:minHeight="375dp"
         android:fadeScrollbars="false"
-        android:scrollbars="none" />
+        android:scrollbars="none"
+        android:paddingBottom="10dp"/>
 
     <LinearLayout
         android:id="@+id/footer"
