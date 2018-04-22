@@ -298,7 +298,7 @@ public class BoardsListActivity extends BaseActivity {
                             int idBoard = Integer.parseInt(parts[1].trim());
                             insertBoardLocal(idBoard, name, 1);
                             addBoardMemberLocal(idBoard, Integer.parseInt(sp.getString("idUser", "0")),
-                                    sp.getString("email", ""), sp.getString("name", ""));
+                                    sp.getString("name", ""), sp.getString("email", ""));
                             showBoardsLocal();
                             Toast.makeText(BoardsListActivity.this, getString(R.string.add_success), Toast.LENGTH_SHORT).show();
                         } else {
