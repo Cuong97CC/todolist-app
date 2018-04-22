@@ -120,6 +120,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.MyView
                     v.setBackgroundColor(v.getResources().getColor(android.R.color.holo_blue_light));
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
+                    v.setBackgroundColor(v.getResources().getColor(R.color.titleBackground));
                     break;
                 case DragEvent.ACTION_DROP:
                     CardPassObj passObj = (CardPassObj)event.getLocalState();
