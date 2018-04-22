@@ -117,6 +117,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.MyView
                 case DragEvent.ACTION_DRAG_STARTED:
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
+                    v.setBackgroundColor(v.getResources().getColor(android.R.color.holo_blue_light));
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
@@ -133,6 +134,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.MyView
 
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
+                    v.setBackgroundColor(v.getResources().getColor(R.color.titleBackground));
                     break;
                 default:
                     break;
