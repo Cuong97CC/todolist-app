@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -240,6 +241,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     public void editCardDialog(final Card card) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_card);
 
         Button btEditCardOk = (Button) dialog.findViewById(R.id.btEditCardOk);
@@ -279,6 +281,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     public void setLocationDialog(final Card card) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_set_location);
 
         Button btSetLocationOk = (Button) dialog.findViewById(R.id.btSetLocationOk);
@@ -431,6 +434,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     public void chooseMemberDialog(Card card, int boardId) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_member_card);
 
         ListView lvBoardMembers = (ListView) dialog.findViewById(R.id.lvBoardMembers);
@@ -643,6 +647,7 @@ public class CardDetailsActivity extends BaseActivity {
 
     private void setTimeDialog(final Card card) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_set_time);
 
         Button btSetTimeOk = (Button) dialog.findViewById(R.id.btSetTimeOk);

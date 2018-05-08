@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -196,6 +197,7 @@ public class BoardsListActivity extends BaseActivity {
 
     private void addBoardDialog() {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_board);
 
         Button btAddBoardOk = (Button) dialog.findViewById(R.id.btAddBoardOk);
@@ -230,6 +232,7 @@ public class BoardsListActivity extends BaseActivity {
 
     public void editBoardDialog(final Board board) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_board);
 
         Button btEditBoardOk = (Button) dialog.findViewById(R.id.btEditBoardOk);

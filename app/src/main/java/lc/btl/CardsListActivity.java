@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -126,10 +127,10 @@ public class CardsListActivity extends BaseActivity {
                     case DragEvent.ACTION_DRAG_ENTERED:
                         break;
                     case DragEvent.ACTION_DRAG_LOCATION:
-                        if (event.getX() < v.getWidth()*0.2) {
-                            recyclerView.smoothScrollBy(-30,0);
-                        } else if (event.getX() > v.getWidth()*0.8) {
-                            recyclerView.smoothScrollBy(+30,0);
+                        if (event.getX() < v.getWidth()*0.3) {
+                            recyclerView.scrollBy(-25,0);
+                        } else if (event.getX() > v.getWidth()*0.7) {
+                            recyclerView.scrollBy(+25,0);
                         }
                         break;
                     case DragEvent.ACTION_DRAG_EXITED:
@@ -181,6 +182,7 @@ public class CardsListActivity extends BaseActivity {
 
     private void addListDialog() {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_list);
 
         Button btAddListOk = (Button) dialog.findViewById(R.id.btAddListOk);
@@ -218,6 +220,7 @@ public class CardsListActivity extends BaseActivity {
 
     private void addUserDialog() {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_user);
 
         Button btAddUserOk = (Button) dialog.findViewById(R.id.btAddUserOk);
@@ -455,6 +458,7 @@ public class CardsListActivity extends BaseActivity {
 
     public void editListDialog(final CardList list) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_list);
 
         Button btEditListOk = (Button) dialog.findViewById(R.id.btEditListOk);
@@ -525,6 +529,7 @@ public class CardsListActivity extends BaseActivity {
 
     public void addCardDialog(final CardList list) {
         final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_add_card);
 
         TextView tvListToAdd = (TextView) dialog.findViewById(R.id.tvListToAdd);
