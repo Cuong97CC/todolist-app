@@ -73,6 +73,7 @@
 
     <LinearLayout
         android:background="@color/sectionBackground"
+        android:id="@+id/layoutTime"
         android:layout_margin="5dp"
         android:padding="10dp"
         android:orientation="horizontal"
@@ -111,6 +112,7 @@
 
     <LinearLayout
         android:background="@color/sectionBackground"
+        android:id="@+id/layoutLocation"
         android:layout_margin="5dp"
         android:padding="10dp"
         android:orientation="horizontal"
@@ -151,6 +153,7 @@
 
     <LinearLayout
         android:background="@color/sectionBackground"
+        android:id="@+id/layoutAssign"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="5dp"

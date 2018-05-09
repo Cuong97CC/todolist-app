@@ -172,7 +172,7 @@ public class CardsListActivity extends BaseActivity {
             Cursor cursor1 = getCardsLocal(cursor.getInt(0));
             ArrayList<Card> cards = new ArrayList<>();
             while (cursor1.moveToNext()) {
-                cards.add(new Card(cursor1.getInt(0), cursor1.getString(1),cursor1.getString(3),cursor1.getString(4), cursor1.getInt(8)));
+                cards.add(new Card(cursor1.getInt(0), cursor1.getString(1),cursor1.getString(3),cursor1.getString(4), cursor1.getInt(9)));
             }
             current.setCards(cards);
             listList.add(current);
@@ -575,7 +575,7 @@ public class CardsListActivity extends BaseActivity {
                         String[] parts = response.trim().split(":");
                         if (parts[0].equals("id")) {
                             int idCard = Integer.parseInt(parts[1].trim());
-                            insertCardLocal(idCard, name, description, "", "", "", "", "", id);
+                            insertCardLocal(idCard, name, description, "", "", "", "", "", 0, id);
                             showListsLocal();
                             Toast.makeText(CardsListActivity.this, getString(R.string.add_success), Toast.LENGTH_SHORT).show();
                         } else {

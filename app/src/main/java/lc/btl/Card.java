@@ -10,6 +10,7 @@ import java.util.Date;
 public class Card implements Serializable{
     private int id, idList;
     private String name, description, date, time, location, lat, lng;
+    private int notice;
 
     public Card() {
         this.id = 0;
@@ -20,13 +21,15 @@ public class Card implements Serializable{
         this.location = "";
         this.lat = "";
         this.lng = "";
+        this.notice = 0;
     }
 
-    public Card(int id, String name, String date, String time) {
+    public Card(int id, int notice, String name, String date, String time) {
         this.id = id;
         this.name = name;
         this.date = date;
         this.time = time;
+        this.notice = notice;
     }
 
     public Card(int id, String name, String date, String time, int idList) {
@@ -38,6 +41,7 @@ public class Card implements Serializable{
         this.location = "";
         this.lat = "";
         this.lng = "";
+        this.notice = 0;
         this.idList = idList;
     }
 
@@ -111,5 +115,13 @@ public class Card implements Serializable{
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public int getNotice() {
+        return notice;
+    }
+
+    public void setNotice(int notice) {
+        this.notice = notice;
     }
 }

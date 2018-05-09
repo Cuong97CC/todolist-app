@@ -159,18 +159,18 @@ public class BoardsListActivity extends BaseActivity {
                                     JSONArray cards = obj1.getJSONArray("cards");
                                     for(int k = 0; k < cards.length(); k++) {
                                         JSONObject obj2 = cards.getJSONObject(k);
-                                        insertCardLocal(obj2.getInt("id"), obj2.getString("name"), obj2.getString("description"), obj2.getString("date"), obj2.getString("time"), obj2.getString("location"), obj2.getString("lat"), obj2.getString("lng"), obj2.getInt("idList"));
-                                        Card currentCard = new Card(obj2.getInt("id"),obj2.getString("name"),obj2.getString("date"),obj2.getString("time"));
+                                        insertCardLocal(obj2.getInt("id"), obj2.getString("name"), obj2.getString("description"), obj2.getString("date"), obj2.getString("time"), obj2.getString("location"), obj2.getString("lat"), obj2.getString("lng"), obj2.getInt("notice"), obj2.getInt("idList"));
+                                        Card currentCard = new Card(obj2.getInt("id"), obj2.getInt("notice"), obj2.getString("name"),obj2.getString("date"),obj2.getString("time"));
                                         String id = sharedPreferences.getString("ids", "");
                                         String[] ids = id.split(",");
-                                        if (checkAlarm(ids, currentCard.getId())) {
-                                            refreshAlarm(currentCard, obj.getString("name"), obj.getInt("id"), obj.getInt("is_owner"));
-                                        }
+                                        String idC = sharedPreferences.getString("idsCancel", "");
+                                        String[] idsC = idC.split(",");
                                         JSONArray users = obj2.getJSONArray("users");
                                         for(int l = 0; l < users.length(); l++) {
                                             JSONObject obj3 = users.getJSONObject(l);
                                             assignCardLocal(obj2.getInt("id"),obj3.getInt("id"),obj3.getString("name"),obj3.getString("email"));
                                         }
+                                        refreshAlarm(currentCard, obj.getString("name"), obj.getInt("id"), obj.getInt("is_owner"), ids, idsC);
                                     }
                                 }
                                 JSONArray members = obj.getJSONArray("users");

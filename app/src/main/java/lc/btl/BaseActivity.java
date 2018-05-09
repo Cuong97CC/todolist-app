@@ -7,9 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -45,7 +47,8 @@ import java.util.Locale;
 
 public class BaseActivity extends AppCompatActivity {
 
-    public String baseURL = "https://todolistv1.000webhostapp.com";
+    public String baseURL = "https://uetgramv1.000webhostapp.com";
+//    public String baseURL = "https://todolistv1.000webhostapp.com";
 //    public String baseURL = "http://123.24.173.56/apiv1";
     public String getAllDataURL = baseURL + "/getAllData.php?email=";
     private GoogleSignInClient mGoogleSignInClient;
@@ -76,7 +79,7 @@ public class BaseActivity extends AppCompatActivity {
         database = new LocalDatabse(this, "todolist.sql", null, 1);
         database.queryData("CREATE TABLE IF NOT EXISTS boards( id INTEGER PRIMARY KEY, name VARCHAR(255), is_owner INTEGER)");
         database.queryData("CREATE TABLE IF NOT EXISTS cardslist( id INTEGER PRIMARY KEY, name VARCHAR(255), idBoard INTEGER)");
-        database.queryData("CREATE TABLE IF NOT EXISTS card( id INTEGER PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), date VARCHAR(255), time VARCHAR(255), location VARCHAR(255), lat VARCHAR(255), lng VARCHAR(255), idList INTEGER)");
+        database.queryData("CREATE TABLE IF NOT EXISTS card( id INTEGER PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), date VARCHAR(255), time VARCHAR(255), location VARCHAR(255), lat VARCHAR(255), lng VARCHAR(255), notice INTEGER, idList INTEGER)");
         database.queryData("CREATE TABLE IF NOT EXISTS board_users( idBoard INTEGER , idUser INTEGER, name VARCHAR(255), email VARCHAR(255))");
         database.queryData("CREATE TABLE IF NOT EXISTS card_users( idCard INTEGER , idUser INTEGER, name VARCHAR(255), email VARCHAR(255))");
 
@@ -209,7 +212,11 @@ public class BaseActivity extends AppCompatActivity {
         editor.putString("name", "");
         editor.putString("email", "");
         editor.putString("image", "");
-        editor.commit();
+        SharedPreferences.Editor editor1 = sharedPreferences.edit();
+        editor1.putString("ids", "");
+        editor1.putString("idsCancel", "");
+        editor.apply();
+        editor1.apply();
     }
 
     public void insertBoardLocal(int id, String name, int is_owner) {
@@ -253,10 +260,10 @@ public class BaseActivity extends AppCompatActivity {
         Log.e("DATABASE", "rename card " + id + " to " + name + "-" + description);
     }
 
-    public void setTimeLocal(int id, String date, String time) {
+    public void setTimeLocal(int id, String date, String time, int notice) {
         date = date.replace("'","''");
         time = time.replace("'","''");
-        database.queryData("UPDATE card SET date = '" + date + "', time = '" + time + "' WHERE id = " + id);
+        database.queryData("UPDATE card SET date = '" + date + "', time = '" + time + "', notice = " + notice + " WHERE id = " + id);
         Log.e("DATABASE", "set time card " + id + " to " + date + "-" + time);
     }
 
@@ -301,7 +308,7 @@ public class BaseActivity extends AppCompatActivity {
         Log.e("DATABASE", "add list " + name + "-" + id);
     }
 
-    public void insertCardLocal(int id, String name, String description, String date, String time, String location, String lat, String lng, int idList) {
+    public void insertCardLocal(int id, String name, String description, String date, String time, String location, String lat, String lng, int notice, int idList) {
         name = name.replace("'","''");
         description = description.replace("'","''");
         date = date.replace("'","''");
@@ -309,7 +316,7 @@ public class BaseActivity extends AppCompatActivity {
         location = location.replace("'","''");
         lat = lat.replace("'","''");
         lng = lng.replace("'","''");
-        database.queryData("INSERT INTO card VALUES(" + id + ",'" + name + "','" + description + "','" + date + "','" + time + "','" + location + "','" + lat + "','" + lng + "'," + idList + ")");
+        database.queryData("INSERT INTO card VALUES(" + id + ",'" + name + "','" + description + "','" + date + "','" + time + "','" + location + "','" + lat + "','" + lng + "'," + notice + "," + idList + ")");
         Log.e("DATABASE", "add card " + name  + "-" + id);
     }
 
@@ -363,32 +370,54 @@ public class BaseActivity extends AppCompatActivity {
         database.queryData("DELETE FROM card_users");
     }
 
-    public void refreshAlarm(Card currentCard, String boardName, int boardId, int is_owner) {
-        if (timeNotSet(currentCard) || expired(currentCard)) {
+    public void refreshAlarm(Card currentCard, String boardName, int boardId, int is_owner, String[] ids, String[] idsC) {
+        if (checkAlarm(idsC, currentCard.getId())) {
             cancelAlarm(currentCard);
         } else {
-            Calendar calendar = Calendar.getInstance();
-            DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
-            try {
-                Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
-                calendar.setTime(date);
-            } catch (ParseException e) {
-                e.printStackTrace();
+            Cursor cursor = getUser(sp.getString("email", ""));
+            boolean assign = false;
+            if (cursor.moveToFirst()) {
+                assign = isAssigned(currentCard.getId(), cursor.getInt(1));
             }
-            SharedPreferences sp = getSharedPreferences("currentUser", MODE_PRIVATE);
-            Bundle extras = new Bundle();
-            extras.putString("userEmail", sp.getString("email", ""));
-            extras.putString("cardName", currentCard.getName());
-            extras.putString("cardId", String.valueOf(currentCard.getId()));
-            extras.putString("boardId", String.valueOf(boardId));
-            extras.putString("boardName", boardName);
-            extras.putInt("is_owner", is_owner);
-            extras.putString("status", "on");
-            intentReciever.putExtras(extras);
-            pendingIntent = PendingIntent.getBroadcast(
-                    BaseActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_UPDATE_CURRENT
-            );
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            if (checkAlarm(ids, currentCard.getId()) || currentCard.getNotice() == 1 || assign) {
+                Log.e("alarm", currentCard.getName() + ":" + checkAlarm(ids, currentCard.getId()) + "-" + (currentCard.getNotice() == 1) + "-" + assign);
+                if (timeNotSet(currentCard) || expired(currentCard)) {
+                    cancelAlarm(currentCard);
+                } else {
+                    Calendar calendar = Calendar.getInstance();
+                    DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
+                    try {
+                        Date date = df.parse(currentCard.getDate() + " " + currentCard.getTime());
+                        calendar.setTime(date);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    SharedPreferences sp = getSharedPreferences("currentUser", MODE_PRIVATE);
+                    Bundle extras = new Bundle();
+                    extras.putString("userEmail", sp.getString("email", ""));
+                    extras.putString("cardName", currentCard.getName());
+                    extras.putString("cardId", String.valueOf(currentCard.getId()));
+                    extras.putString("boardId", String.valueOf(boardId));
+                    extras.putString("boardName", boardName);
+                    extras.putInt("is_owner", is_owner);
+                    extras.putString("status", "on");
+                    intentReciever.putExtras(extras);
+                    pendingIntent = PendingIntent.getBroadcast(
+                            BaseActivity.this, currentCard.getId(), intentReciever, PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                    SharedPreferences.Editor editor1 = sharedPreferences.edit();
+                    if (!checkAlarm(ids,currentCard.getId())) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < ids.length; i++) {
+                            sb.append(ids[i]).append(",");
+                        }
+                        sb.append(String.valueOf(currentCard.getId())).append(",");
+                        editor1.putString("ids", sb.toString());
+                        editor1.apply();
+                    }
+                }
+            }
         }
     }
 

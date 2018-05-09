@@ -16,10 +16,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Switch;
@@ -63,6 +65,7 @@ public class CardDetailsActivity extends BaseActivity {
     private Card currentCard;
     private String boardName, boardId;
     int PLACE_PICKER_REQUEST = 1;
+    LinearLayout layoutTime, layoutLocation, layoutAssign;
     TextView tvCardName, tvCardPosition, tvDescription, tvTime, tvLocation, tvAssign;
     ImageButton btCardOption, btDirection;
     ListView lvCardMember;
@@ -87,6 +90,7 @@ public class CardDetailsActivity extends BaseActivity {
         currentCard = new Card();
         if(soundStatus != null && soundStatus.equals("off")) {
             stopSound();
+            cancelAlarm(currentCard);
         }
 
         sync();
@@ -117,6 +121,17 @@ public class CardDetailsActivity extends BaseActivity {
                         setAlarm();
                     } else {
                         cancelAlarm(currentCard);
+                        String idC = sharedPreferences.getString("idsCancel", "");
+                        String[] idsC = idC.split(",");
+                        if (!checkAlarm(idsC,currentCard.getId())) {
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 0; i < idsC.length; i++) {
+                                sb.append(idsC[i]).append(",");
+                            }
+                            sb.append(String.valueOf(currentCard.getId())).append(",");
+                            editor.putString("idsCancel", sb.toString());
+                            editor.apply();
+                        }
                     }
                 }
             }
@@ -129,6 +144,33 @@ public class CardDetailsActivity extends BaseActivity {
                     showDirection();
                 } else {
                     Toast.makeText(CardDetailsActivity.this, getString(R.string.no_location), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        layoutTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (is_owner == 1) {
+                    setTimeDialog(currentCard);
+                }
+            }
+        });
+
+        layoutLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (is_owner == 1) {
+                    setLocationDialog(currentCard);
+                }
+            }
+        });
+
+        layoutAssign.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (is_owner == 1) {
+                    chooseMemberDialog(currentCard,Integer.parseInt(boardId));
                 }
             }
         });
@@ -145,6 +187,9 @@ public class CardDetailsActivity extends BaseActivity {
         tvLocation = (TextView) findViewById(R.id.tvLocation);
         lvCardMember = (ListView) findViewById(R.id.lvCardMembers);
         tvAssign = (TextView) findViewById(R.id.tvAssign);
+        layoutTime = (LinearLayout) findViewById(R.id.layoutTime);
+        layoutLocation = (LinearLayout) findViewById(R.id.layoutLocation);
+        layoutAssign = (LinearLayout) findViewById(R.id.layoutAssign);
     }
 
     public void showCardDetailsLocal() {
@@ -160,7 +205,7 @@ public class CardDetailsActivity extends BaseActivity {
                 currentCard.setLocation(cursor.getString(5));
                 currentCard.setLat(cursor.getString(6));
                 currentCard.setLng(cursor.getString(7));
-                Cursor cursor2 = getList(cursor.getInt(8));
+                Cursor cursor2 = getList(cursor.getInt(9));
                 if (cursor2 != null && cursor2.moveToFirst()) {
                     String listName = cursor2.getString(1);
                     tvCardPosition.setText(getString(R.string.list) + " " + listName + " ~ " + getString(R.string.board) + " " + boardName);
@@ -175,6 +220,8 @@ public class CardDetailsActivity extends BaseActivity {
         }
         if(arrayUser.size() > 0) {
             tvAssign.setVisibility(View.GONE);
+        } else {
+            tvAssign.setVisibility(View.VISIBLE);
         }
         assignAdapter.notifyDataSetChanged();
     }
@@ -653,6 +700,7 @@ public class CardDetailsActivity extends BaseActivity {
         Button btSetTimeOk = (Button) dialog.findViewById(R.id.btSetTimeOk);
         Button btSetTimeCancel = (Button) dialog.findViewById(R.id.btSetTimeCancel);
         ImageButton btClearTime = (ImageButton) dialog.findViewById(R.id.btClearTime);
+        final CheckBox cbNoticeMember = (CheckBox) dialog.findViewById(R.id.cbNoticeMember);
         final EditText edtSetDate = (EditText) dialog.findViewById(R.id.edtSetDate);
         final EditText edtSetTime = (EditText) dialog.findViewById(R.id.edtSetTime);
 
@@ -676,6 +724,8 @@ public class CardDetailsActivity extends BaseActivity {
             }
         });
 
+        cbNoticeMember.setChecked(true);
+
         edtSetTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -690,7 +740,11 @@ public class CardDetailsActivity extends BaseActivity {
                 String time = edtSetTime.getText().toString();
                 if((date.equals("") && time.equals("")) || (!date.equals("") && !time.equals(""))) {
                     dialog.dismiss();
-                    setTime(setTimeURL, date, time, card.getId());
+                    if (cbNoticeMember.isChecked()) {
+                        setTime(setTimeURL, date, time, card.getId(), 1);
+                    } else {
+                        setTime(setTimeURL, date, time, card.getId(), 0);
+                    }
                 } else {
                     Toast.makeText(CardDetailsActivity.this, getString(R.string.complete_time), Toast.LENGTH_SHORT).show();
                 }
@@ -763,14 +817,14 @@ public class CardDetailsActivity extends BaseActivity {
         timePickerDialog.show();
     }
 
-    private void setTime(String url, final String date, final String time, final int id) {
+    private void setTime(String url, final String date, final String time, final int id, final int nf) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         if (response.trim().equals("1")) {
-                            setTimeLocal(id, date, time);
+                            setTimeLocal(id, date, time, nf);
                             showCardDetailsLocal();
                             if(!timeNotSet(currentCard) && !expired(currentCard)) {
                                 swNotification.setChecked(true);
@@ -794,6 +848,7 @@ public class CardDetailsActivity extends BaseActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("date", date);
                 params.put("time", time);
+                params.put("notice", String.valueOf(nf));
                 params.put("idCard", String.valueOf(id));
                 return params;
             }
@@ -835,6 +890,19 @@ public class CardDetailsActivity extends BaseActivity {
                 }
                 sb.append(String.valueOf(currentCard.getId())).append(",");
                 editor.putString("ids", sb.toString());
+                editor.apply();
+            }
+            String idC = sharedPreferences.getString("idsCancel", "");
+            String[] idsC = idC.split(",");
+            if (checkAlarm(idsC, currentCard.getId())) {
+                String currentId = String.valueOf(currentCard.getId());
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < idsC.length; i++) {
+                    if(!idsC[i].equals(currentId)) {
+                        sb.append(idsC[i]).append(",");
+                    }
+                }
+                editor.putString("idsCancel", sb.toString());
                 editor.apply();
             }
         } else {
