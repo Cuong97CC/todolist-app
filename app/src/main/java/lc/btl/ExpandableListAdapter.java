@@ -11,6 +11,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import lc.btl.Object.Card;
+import lc.btl.Object.CardList;
+
 /**
  * Created by THHNt on 2/6/2018.
  */

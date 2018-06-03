@@ -1,8 +1,6 @@
 package lc.btl;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +10,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.List;
+
+import lc.btl.Object.Board;
 
 /**
  * Created by THHNt on 2/5/2018.

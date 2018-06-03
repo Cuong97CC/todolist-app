@@ -1,4 +1,4 @@
-package lc.btl;
+package lc.btl.Object;
 
 import java.io.Serializable;
 import java.util.Date;

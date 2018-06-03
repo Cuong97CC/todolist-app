@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import lc.btl.Object.User;
+
 /**
  * Created by THHNt on 2/20/2018.
  */

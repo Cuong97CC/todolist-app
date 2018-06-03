@@ -32,6 +32,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import lc.btl.Object.Board;
+import lc.btl.Object.Card;
+
 public class BoardsListActivity extends BaseActivity {
 
     private String addBoardURL = baseURL + "/insertBoard.php";
@@ -183,6 +186,7 @@ public class BoardsListActivity extends BaseActivity {
                             }
                         }
                         showBoardsLocal();
+                        Toast.makeText(BoardsListActivity.this, getString(R.string.updated), Toast.LENGTH_SHORT).show();
                     }
                 },
                 new Response.ErrorListener() {

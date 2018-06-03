@@ -1,7 +1,6 @@
 package lc.btl;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +8,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
+
+import lc.btl.Object.Card;
+import lc.btl.Object.CardPassObj;
 
 
 /**

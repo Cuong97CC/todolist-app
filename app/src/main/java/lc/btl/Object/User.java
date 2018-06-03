@@ -1,4 +1,4 @@
-package lc.btl;
+package lc.btl.Object;
 
 /**
  * Created by THHNt on 2/20/2018.

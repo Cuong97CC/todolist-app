@@ -1,4 +1,4 @@
-package lc.btl;
+package lc.btl.Service;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -15,6 +15,11 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+
+import lc.btl.CardDetailsActivity;
+import lc.btl.LocalDatabse;
+import lc.btl.R;
+import lc.btl.Object.SoundControl;
 
 /**
  * Created by THHNt on 2/12/2018.

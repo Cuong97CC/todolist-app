@@ -25,9 +25,9 @@
         <activity android:name=".CardsListActivity" />
         <activity android:name=".CardDetailsActivity" />
 
-        <receiver android:name=".AlarmReciever" />
+        <receiver android:name=".Receiver.AlarmReciever" />
 
-        <service android:name=".NotificationService"
+        <service android:name=".Service.NotificationService"
             android:enabled="true"/>
 
         <activity android:name=".BoardsListActivity" />

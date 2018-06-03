@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import lc.btl.Object.Card;
+import lc.btl.Object.CardList;
+import lc.btl.Object.CardPassObj;
+
 /**
  * Created by Juned on 3/27/2017.
  */

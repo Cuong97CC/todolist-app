@@ -1,7 +1,9 @@
-package lc.btl;
+package lc.btl.Object;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+
+import lc.btl.R;
 
 /**
  * Created by THHNt on 2/9/2018.

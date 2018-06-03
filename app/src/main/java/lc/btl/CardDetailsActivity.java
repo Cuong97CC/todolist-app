@@ -51,6 +51,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import lc.btl.Object.Card;
+import lc.btl.Object.User;
+
 public class CardDetailsActivity extends BaseActivity {
 
     private String editCardURL = baseURL + "/editCard.php";
