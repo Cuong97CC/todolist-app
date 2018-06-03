@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 
 /**
@@ -30,6 +31,7 @@ public class NotificationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Context context = this.getApplicationContext();
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         SharedPreferences sp = context.getSharedPreferences("currentUser", MODE_PRIVATE);
         String email = sp.getString("email","");
         String cardId = intent.getExtras().getString("cardId");
@@ -47,6 +49,8 @@ public class NotificationService extends Service {
                         int is_owner = intent.getExtras().getInt("is_owner");
 
                         SoundControl.getInstance(context).playMusic();
+                        long[] pattern = { 0, 1000, 500 }; //0 to start now, 1000 to vibrate 1000 ms, 0 to sleep for 500 ms.
+                        v.vibrate(pattern, 0); // 0 to repeat endlessly.
 
                         NotificationManager notificationManager = (NotificationManager)
                                 context.getSystemService(NOTIFICATION_SERVICE);
@@ -81,6 +85,7 @@ public class NotificationService extends Service {
         }
         if (status != null && status.equals("off")) {
             SoundControl.getInstance(context).stopMusic();
+            v.cancel();
         }
         return START_NOT_STICKY;
     }
